@@ -2,7 +2,6 @@ import os
 import json
 import logging
 import sys
-import re
 from typing import Dict, Optional, List
 from dataclasses import dataclass
 from datetime import datetime
@@ -264,6 +263,9 @@ TRANSLATION_DICT = {
     "leaf surface": "bề mặt lá",
 }
 
+# Pre-sort translation keys by length (longest first) for efficient matching
+SORTED_TRANSLATION_KEYS = sorted(TRANSLATION_DICT.keys(), key=len, reverse=True)
+
 
 @dataclass
 class DiseaseAnalysisResult:
@@ -314,11 +316,9 @@ def translate_to_vietnamese(text: str) -> str:
     if text_lower in TRANSLATION_DICT:
         return TRANSLATION_DICT[text_lower]
     
-    # Sort keys by length (longest first) for better matching
-    sorted_keys = sorted(TRANSLATION_DICT.keys(), key=len, reverse=True)
-    
+    # Use pre-sorted keys for efficient matching (longest first prevents partial matches)
     result = text_lower
-    for english_key in sorted_keys:
+    for english_key in SORTED_TRANSLATION_KEYS:
         if english_key in result:
             result = result.replace(english_key, TRANSLATION_DICT[english_key])
     
@@ -396,7 +396,7 @@ class LeafDiseaseDetector:
 
     Hệ thống hỗ trợ hình ảnh được mã hóa base64 và trả về kết quả JSON có cấu trúc chứa thông tin bệnh, điểm tin cậy, triệu chứng, nguyên nhân và gợi ý điều trị.
     
-    **✨ TÍnh năng mới: Tất cả kết quả được tự động dịch sang tiếng Việt 100% sau khi phân tích.**
+    **✨ Tính năng mới: Tất cả kết quả được tự động dịch sang tiếng Việt 100% sau khi phân tích.**
 
     Tính năng:
         - Xác thực hình ảnh (đảm bảo hình ảnh được tải lên chứa lá cây)
