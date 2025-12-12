@@ -201,6 +201,9 @@ if uploaded_file is not None:
                     st.session_state.chatbot = PlantDiseaseChatbot()
                 st.session_state.chatbot.set_disease_context(result)
                 
+                # Close chatbot dialog if it was open
+                st.session_state.show_chat_dialog = False
+                
             except Exception as e: 
                 st.error(f"Lỗi: {str(e)}")
                 import traceback
@@ -325,87 +328,94 @@ if st.session_state.chatbot is None:
     except Exception as e:
         st.error(f"Không thể khởi tạo chatbot: {str(e)}")
 
-# Add CSS for fixed position chatbot button
-st.markdown("""
+# Use dialog for chat interface
+@st.dialog("💬 Chatbot Tư Vấn Bệnh Cây", width="large")
+def show_chatbot():
+    # Header with clear button
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        if st.session_state.disease_result:
+            st.success("✅ Chatbot đã có thông tin phân tích bệnh")
+        else:
+            st.info("💡 Hãy phân tích ảnh lá cây trước để chatbot có thể tư vấn chi tiết!")
+    with col2:
+        if st.button("🗑️", key="clear_chat_dlg", help="Xóa lịch sử chat"):
+            st.session_state.chat_messages = []
+            if st.session_state.chatbot is not None:
+                st.session_state.chatbot.clear_history()
+            st.rerun()
+    
+    # Chat messages container
+    chat_container = st.container(height=450)
+    with chat_container:
+        for message in st.session_state.chat_messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+    
+    # Chat input
+    if prompt := st.chat_input("Nhập câu hỏi...", key="chat_dlg_input"):
+        st.session_state.chat_messages.append({"role": "user", "content": prompt})
+        
+        try:
+            response = st.session_state.chatbot.chat(prompt)
+            st.session_state.chat_messages.append({"role": "assistant", "content": response})
+        except Exception as e:
+            error_msg = f"Xin lỗi, đã có lỗi: {str(e)}"
+            st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
+        
+        # Keep dialog open by setting flag
+        st.session_state.show_chat_dialog = True
+        st.rerun()
+
+# Show dialog if flag is set
+if st.session_state.show_chat_dialog:
+    show_chatbot()
+
+# Add floating chatbot button with truly fixed positioning using st.html()
+st.html("""
     <style>
-    /* Float chatbot button to bottom right */
-    .stApp > div:last-child {
-        position: relative;
-    }
-    div[data-testid="stBottom"] {
+    /* Ensure button stays fixed at bottom-right even when scrolling */
+    #chatbot-fab {
         position: fixed !important;
         bottom: 20px !important;
         right: 20px !important;
-        z-index: 999 !important;
-    }
-    div[data-testid="stBottom"] button {
+        z-index: 9999 !important;
         width: 60px !important;
         height: 60px !important;
         border-radius: 50% !important;
-        font-size: 24px !important;
-        padding: 0 !important;
+        background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%) !important;
+        border: none !important;
         box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 24px !important;
+        transition: all 0.3s ease !important;
     }
-    div[data-testid="stBottom"] button:hover {
-        transform: scale(1.1);
+    
+    #chatbot-fab:hover {
+        transform: scale(1.1) !important;
         box-shadow: 0 6px 20px rgba(46, 125, 50, 0.6) !important;
     }
+    
+    /* Hide default streamlit button styling for the chatbot FAB */
+    div[data-testid="stVerticalBlock"] > div:last-child button[kind="primary"] {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        z-index: 9999 !important;
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        min-height: 60px !important;
+        font-size: 24px !important;
+    }
     </style>
-""", unsafe_allow_html=True)
+""")
 
-# Floating chatbot button using bottom container
-bottom_container = st.container()
-with bottom_container:
-    st.markdown('<div data-testid="stBottom">', unsafe_allow_html=True)
-    
-    # Use dialog for chat interface
-    @st.dialog("💬 Chatbot Tư Vấn Bệnh Cây", width="large")
-    def show_chatbot():
-        # Header with clear button
-        col1, col2 = st.columns([4, 1])
-        with col1:
-            if st.session_state.disease_result:
-                st.success("✅ Chatbot đã có thông tin phân tích bệnh")
-            else:
-                st.info("💡 Hãy phân tích ảnh lá cây trước để chatbot có thể tư vấn chi tiết!")
-        with col2:
-            if st.button("🗑️", key="clear_chat_dlg", help="Xóa lịch sử chat"):
-                st.session_state.chat_messages = []
-                if st.session_state.chatbot is not None:
-                    st.session_state.chatbot.clear_history()
-                st.rerun()
-        
-        # Chat messages container
-        chat_container = st.container(height=450)
-        with chat_container:
-            for message in st.session_state.chat_messages:
-                with st.chat_message(message["role"]):
-                    st.markdown(message["content"])
-        
-        # Chat input
-        if prompt := st.chat_input("Nhập câu hỏi...", key="chat_dlg_input"):
-            st.session_state.chat_messages.append({"role": "user", "content": prompt})
-            
-            try:
-                response = st.session_state.chatbot.chat(prompt)
-                st.session_state.chat_messages.append({"role": "assistant", "content": response})
-            except Exception as e:
-                error_msg = f"Xin lỗi, đã có lỗi: {str(e)}"
-                st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
-            
-            # Keep dialog open by setting flag
-            st.session_state.show_chat_dialog = True
-            st.rerun()
-    
-    if st.button("💬", key="open_chatbot", help="Mở Chatbot Tư Vấn", type="primary"):
-        st.session_state.show_chat_dialog = True
-        st.rerun()
-    
-    # Show dialog if flag is set
-    if st.session_state.show_chat_dialog:
-        show_chatbot()
-        # Reset flag after showing dialog (will be set again if needed)
-        if not st.session_state.get('_dialog_shown', False):
-            st.session_state._dialog_shown = True
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+# Floating chatbot button
+if st.button("💬", key="open_chatbot", help="Mở Chatbot Tư Vấn", type="primary"):
+    st.session_state.show_chat_dialog = True
+    st.rerun()
