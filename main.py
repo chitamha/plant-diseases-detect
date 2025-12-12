@@ -21,6 +21,8 @@ if 'chat_messages' not in st.session_state:
     st.session_state.chat_messages = []
 if 'disease_result' not in st.session_state:
     st.session_state.disease_result = None
+if 'chat_widget_open' not in st.session_state:
+    st.session_state.chat_widget_open = False
 
 # --- SIDEBAR (THANH BÊN) ---
 with st.sidebar:
@@ -118,6 +120,35 @@ st.markdown("""
     margin-top: 1.2em;
     font-size: 0.95em;
     color: #5F6F64;
+    }
+    
+    /* ===== FLOATING CHATBOT ===== */
+    .chatbot-float-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+        cursor: pointer;
+        z-index: 9999;
+        transition: all 0.3s ease;
+    }
+    
+    .chatbot-float-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(46, 125, 50, 0.6);
+    }
+    
+    .chatbot-float-btn svg {
+        width: 32px;
+        height: 32px;
+        fill: white;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -285,19 +316,7 @@ if st.session_state.disease_result is not None:
             unsafe_allow_html=True
         )
 
-# ========== CHATBOT SECTION (AT BOTTOM) ==========
-st.markdown("---")
-
-# Create columns for chatbot header and clear button
-col_header, col_clear = st.columns([3, 1])
-with col_header:
-    st.markdown("### 💬 Chatbot Tư Vấn Bệnh Cây")
-with col_clear:
-    if st.button("🗑️ Xóa cuộc trò chuyện", key="clear_chat_btn", use_container_width=True):
-        st.session_state.chat_messages = []
-        if st.session_state.chatbot is not None:
-            st.session_state.chatbot.clear_history()
-        st.rerun()
+# ========== FLOATING CHATBOT WIDGET ==========
 
 # Initialize chatbot if not exists
 if st.session_state.chatbot is None:
@@ -305,35 +324,79 @@ if st.session_state.chatbot is None:
         st.session_state.chatbot = PlantDiseaseChatbot()
     except Exception as e:
         st.error(f"Không thể khởi tạo chatbot: {str(e)}")
-        st.stop()
 
-# Note: Disease context is automatically set when analysis is run
-# No need to show the context expander to users
+# Add CSS for fixed position chatbot button
+st.markdown("""
+    <style>
+    /* Float chatbot button to bottom right */
+    .stApp > div:last-child {
+        position: relative;
+    }
+    div[data-testid="stBottom"] {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        z-index: 999 !important;
+    }
+    div[data-testid="stBottom"] button {
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 50% !important;
+        font-size: 24px !important;
+        padding: 0 !important;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4) !important;
+    }
+    div[data-testid="stBottom"] button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(46, 125, 50, 0.6) !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# Display chat messages
-chat_container = st.container()
-with chat_container:
-    for message in st.session_state.chat_messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-# Chat input
-if prompt := st.chat_input("Nhập câu hỏi của bạn...", key="chat_input"):
-    # Display user message
-    with st.chat_message("user"):
-        st.markdown(prompt)
+# Floating chatbot button using bottom container
+bottom_container = st.container()
+with bottom_container:
+    st.markdown('<div data-testid="stBottom">', unsafe_allow_html=True)
     
-    # Add to session state
-    st.session_state.chat_messages.append({"role": "user", "content": prompt})
+    # Use dialog for chat interface
+    @st.dialog("💬 Chatbot Tư Vấn Bệnh Cây", width="large")
+    def show_chatbot():
+        # Header with clear button
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            if st.session_state.disease_result:
+                st.success("✅ Chatbot đã có thông tin phân tích bệnh")
+            else:
+                st.info("💡 Hãy phân tích ảnh lá cây trước để chatbot có thể tư vấn chi tiết!")
+        with col2:
+            if st.button("🗑️", key="clear_chat_dlg", help="Xóa lịch sử chat"):
+                st.session_state.chat_messages = []
+                if st.session_state.chatbot is not None:
+                    st.session_state.chatbot.clear_history()
+                st.rerun()
+        
+        # Chat messages container
+        chat_container = st.container(height=450)
+        with chat_container:
+            for message in st.session_state.chat_messages:
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
+        
+        # Chat input
+        if prompt := st.chat_input("Nhập câu hỏi...", key="chat_dlg_input"):
+            st.session_state.chat_messages.append({"role": "user", "content": prompt})
+            
+            with st.spinner("Đang suy nghĩ..."):
+                try:
+                    response = st.session_state.chatbot.chat(prompt)
+                    st.session_state.chat_messages.append({"role": "assistant", "content": response})
+                    st.rerun()
+                except Exception as e:
+                    error_msg = f"Xin lỗi, đã có lỗi: {str(e)}"
+                    st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
+                    st.rerun()
     
-    # Get chatbot response
-    with st.chat_message("assistant"):
-        with st.spinner("Đang suy nghĩ..."):
-            try:
-                response = st.session_state.chatbot.chat(prompt)
-                st.markdown(response)
-                st.session_state.chat_messages.append({"role": "assistant", "content": response})
-            except Exception as e:
-                error_msg = f"Xin lỗi, đã có lỗi xảy ra: {str(e)}"
-                st.error(error_msg)
-                st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
+    if st.button("💬", key="open_chatbot", help="Mở Chatbot Tư Vấn", type="primary"):
+        show_chatbot()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
