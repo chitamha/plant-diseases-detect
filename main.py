@@ -23,8 +23,8 @@ if 'chat_messages' not in st.session_state:
     st.session_state.chat_messages = []
 if 'disease_result' not in st.session_state:
     st.session_state.disease_result = None
-if 'selected_mode' not in st.session_state:
-    st.session_state.selected_mode = APP_MODE_DETECTION
+if 'app_mode' not in st.session_state:
+    st.session_state.app_mode = APP_MODE_DETECTION
 
 # --- SIDEBAR (THANH BÊN) ---
 with st.sidebar:
@@ -50,12 +50,13 @@ with st.sidebar:
     
     st.markdown("---")
     st.subheader("🤖 Chế độ")
-    app_mode = st.radio(
+    
+    # Use session state directly for the radio button
+    st.session_state.app_mode = st.radio(
         "Chọn chức năng:",
         [APP_MODE_DETECTION, APP_MODE_CHATBOT],
-        index=0 if st.session_state.selected_mode == APP_MODE_DETECTION else 1,
-        label_visibility="collapsed",
-        key="app_mode_radio"
+        index=0 if st.session_state.app_mode == APP_MODE_DETECTION else 1,
+        label_visibility="collapsed"
     )
 
 st.markdown("""
@@ -154,7 +155,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Check which mode is selected
-if app_mode == APP_MODE_DETECTION:
+if st.session_state.app_mode == APP_MODE_DETECTION:
     # Original disease detection UI
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -265,7 +266,7 @@ if app_mode == APP_MODE_DETECTION:
                                 # Set disease context
                                 st.session_state.chatbot.set_disease_context(result)
                                 # Switch to chatbot mode
-                                st.session_state.selected_mode = APP_MODE_CHATBOT
+                                st.session_state.app_mode = APP_MODE_CHATBOT
                                 st.rerun()
 
                         else:
@@ -305,7 +306,7 @@ if app_mode == APP_MODE_DETECTION:
                                 # Set disease context (even for healthy plants)
                                 st.session_state.chatbot.set_disease_context(result)
                                 # Switch to chatbot mode
-                                st.session_state.selected_mode = APP_MODE_CHATBOT
+                                st.session_state.app_mode = APP_MODE_CHATBOT
                                 st.rerun()
                             
                     except Exception as e: 
