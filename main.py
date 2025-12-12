@@ -1,5 +1,6 @@
 import streamlit as st
 import base64
+from datetime import datetime
 from core import LeafDiseaseDetector
 from chatbot import PlantDiseaseChatbot
 
@@ -26,6 +27,8 @@ if 'show_chat_dialog' not in st.session_state:
 # Initialize session state for uploaded images history
 if 'uploaded_images' not in st.session_state:
     st.session_state.uploaded_images = []
+if 'confirm_clear_history' not in st.session_state:
+    st.session_state.confirm_clear_history = False
 
 # --- SIDEBAR (THANH BÊN) ---
 with st.sidebar:
@@ -201,11 +204,10 @@ if uploaded_file is not None:
                 # Save result to session state for chatbot
                 st.session_state.disease_result = result
                 
-                # Save uploaded image to history with metadata
-                from datetime import datetime
+                # Save uploaded image to history with metadata (using base64 to save memory)
                 image_record = {
                     'filename': uploaded_file.name,
-                    'image_bytes': image_bytes,
+                    'image_base64': base64_image,
                     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     'result': result
                 }
@@ -339,12 +341,25 @@ if st.session_state.uploaded_images:
     st.markdown("---")
     st.markdown("## 📁 Lịch sử hình ảnh đã tải")
     
-    # Add clear history button
+    # Add clear history button with confirmation
     col1, col2, col3 = st.columns([1, 1, 1])
     with col3:
-        if st.button("🗑️ Xóa lịch sử", key="clear_history"):
-            st.session_state.uploaded_images = []
-            st.rerun()
+        if not st.session_state.confirm_clear_history:
+            if st.button("🗑️ Xóa lịch sử", key="clear_history"):
+                st.session_state.confirm_clear_history = True
+                st.rerun()
+        else:
+            st.warning("⚠️ Bạn có chắc muốn xóa tất cả?")
+            col_yes, col_no = st.columns(2)
+            with col_yes:
+                if st.button("✓ Có", key="confirm_yes"):
+                    st.session_state.uploaded_images = []
+                    st.session_state.confirm_clear_history = False
+                    st.rerun()
+            with col_no:
+                if st.button("✗ Không", key="confirm_no"):
+                    st.session_state.confirm_clear_history = False
+                    st.rerun()
     
     # Display images in a grid
     num_images = len(st.session_state.uploaded_images)
@@ -355,7 +370,9 @@ if st.session_state.uploaded_images:
             col1, col2 = st.columns([1, 2])
             
             with col1:
-                st.image(img_record['image_bytes'], caption=img_record['filename'], use_container_width=True)
+                # Decode base64 image for display
+                image_bytes = base64.b64decode(img_record['image_base64'])
+                st.image(image_bytes, caption=img_record['filename'], use_container_width=True)
             
             with col2:
                 result = img_record['result']
