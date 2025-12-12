@@ -21,8 +21,8 @@ if 'chat_messages' not in st.session_state:
     st.session_state.chat_messages = []
 if 'disease_result' not in st.session_state:
     st.session_state.disease_result = None
-if 'chat_widget_open' not in st.session_state:
-    st.session_state.chat_widget_open = False
+if 'show_chat_dialog' not in st.session_state:
+    st.session_state.show_chat_dialog = False
 
 # --- SIDEBAR (THANH BÊN) ---
 with st.sidebar:
@@ -386,17 +386,26 @@ with bottom_container:
         if prompt := st.chat_input("Nhập câu hỏi...", key="chat_dlg_input"):
             st.session_state.chat_messages.append({"role": "user", "content": prompt})
             
-            with st.spinner("Đang suy nghĩ..."):
-                try:
-                    response = st.session_state.chatbot.chat(prompt)
-                    st.session_state.chat_messages.append({"role": "assistant", "content": response})
-                    st.rerun()
-                except Exception as e:
-                    error_msg = f"Xin lỗi, đã có lỗi: {str(e)}"
-                    st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
-                    st.rerun()
+            try:
+                response = st.session_state.chatbot.chat(prompt)
+                st.session_state.chat_messages.append({"role": "assistant", "content": response})
+            except Exception as e:
+                error_msg = f"Xin lỗi, đã có lỗi: {str(e)}"
+                st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
+            
+            # Keep dialog open by setting flag
+            st.session_state.show_chat_dialog = True
+            st.rerun()
     
     if st.button("💬", key="open_chatbot", help="Mở Chatbot Tư Vấn", type="primary"):
+        st.session_state.show_chat_dialog = True
+        st.rerun()
+    
+    # Show dialog if flag is set
+    if st.session_state.show_chat_dialog:
         show_chatbot()
+        # Reset flag after showing dialog (will be set again if needed)
+        if not st.session_state.get('_dialog_shown', False):
+            st.session_state._dialog_shown = True
     
     st.markdown('</div>', unsafe_allow_html=True)
