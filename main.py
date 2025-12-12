@@ -23,6 +23,8 @@ if 'chat_messages' not in st.session_state:
     st.session_state.chat_messages = []
 if 'disease_result' not in st.session_state:
     st.session_state.disease_result = None
+if 'selected_mode' not in st.session_state:
+    st.session_state.selected_mode = APP_MODE_DETECTION
 
 # --- SIDEBAR (THANH BÊN) ---
 with st.sidebar:
@@ -51,7 +53,9 @@ with st.sidebar:
     app_mode = st.radio(
         "Chọn chức năng:",
         [APP_MODE_DETECTION, APP_MODE_CHATBOT],
-        label_visibility="collapsed"
+        index=0 if st.session_state.selected_mode == APP_MODE_DETECTION else 1,
+        label_visibility="collapsed",
+        key="app_mode_radio"
     )
 
 st.markdown("""
@@ -260,8 +264,9 @@ if app_mode == APP_MODE_DETECTION:
                                     st.session_state.chatbot = PlantDiseaseChatbot()
                                 # Set disease context
                                 st.session_state.chatbot.set_disease_context(result)
-                                st.success("✅ Đã chuyển kết quả phân tích cho Chatbot. Chuyển sang tab 'Chatbot tư vấn' để hỏi!")
-                                st.info("💡 Bạn có thể hỏi: 'Giải thích chi tiết về bệnh này?', 'Tại sao cây bị bệnh?', 'Có cách chữa nào khác?'")
+                                # Switch to chatbot mode
+                                st.session_state.selected_mode = APP_MODE_CHATBOT
+                                st.rerun()
 
                         else:
                             # Healthy leaf case
@@ -299,8 +304,9 @@ if app_mode == APP_MODE_DETECTION:
                                     st.session_state.chatbot = PlantDiseaseChatbot()
                                 # Set disease context (even for healthy plants)
                                 st.session_state.chatbot.set_disease_context(result)
-                                st.success("✅ Đã chuyển kết quả cho Chatbot. Chuyển sang tab 'Chatbot tư vấn' để hỏi!")
-                                st.info("💡 Bạn có thể hỏi: 'Làm sao để cây luôn khỏe mạnh?', 'Nên bón phân gì?', 'Cách phòng bệnh?'")
+                                # Switch to chatbot mode
+                                st.session_state.selected_mode = APP_MODE_CHATBOT
+                                st.rerun()
                             
                     except Exception as e: 
                         st.error(f"Lỗi: {str(e)}")
@@ -357,10 +363,3 @@ else:  # Chatbot mode
                     error_msg = f"Xin lỗi, đã có lỗi xảy ra: {str(e)}"
                     st.error(error_msg)
                     st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
-    
-    # Clear chat button
-    if st.button("🔄 Xóa lịch sử chat", use_container_width=True):
-        st.session_state.chat_messages = []
-        if st.session_state.chatbot:
-            st.session_state.chatbot.clear_history()
-        st.rerun()
