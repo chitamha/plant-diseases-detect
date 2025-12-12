@@ -18,6 +18,9 @@ class ChatRequest(BaseModel):
     temperature: float = 0.7
     max_tokens: int = 1024
 
+class SetContextRequest(BaseModel):
+    disease_analysis: dict
+
 # Initialize chatbot (singleton pattern)
 chatbot_instance = None
 
@@ -65,6 +68,8 @@ async def root():
         "endpoints": {
             "disease_detection_file": "/disease-detection-file (POST, file upload)",
             "chatbot": "/chatbot (POST, JSON with message field)",
+            "chatbot_set_context": "/chatbot/set-context (POST, set disease analysis context)",
+            "chatbot_clear_context": "/chatbot/clear-context (POST, clear disease context)",
             "chatbot_clear": "/chatbot/clear (POST, clear chat history)"
         }
     }
@@ -123,4 +128,51 @@ async def chatbot_clear():
         
     except Exception as e:
         logger.error(f"Lỗi khi xóa lịch sử: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Lỗi máy chủ nội bộ: {str(e)}")
+
+
+@app.post('/chatbot/set-context')
+async def chatbot_set_context(request: SetContextRequest):
+    """
+    Thiết lập context phân tích bệnh cho chatbot.
+    Cho phép chatbot trả lời câu hỏi dựa trên kết quả phân tích cụ thể.
+    """
+    try:
+        logger.info("Yêu cầu thiết lập context phân tích bệnh")
+        
+        # Get chatbot instance and set context
+        chatbot = get_chatbot()
+        chatbot.set_disease_context(request.disease_analysis)
+        
+        logger.info("Đã thiết lập context thành công")
+        return JSONResponse(content={
+            "message": "Đã thiết lập context phân tích bệnh",
+            "status": "success"
+        })
+        
+    except Exception as e:
+        logger.error(f"Lỗi khi thiết lập context: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Lỗi máy chủ nội bộ: {str(e)}")
+
+
+@app.post('/chatbot/clear-context')
+async def chatbot_clear_context():
+    """
+    Xóa context phân tích bệnh của chatbot.
+    """
+    try:
+        logger.info("Yêu cầu xóa context phân tích bệnh")
+        
+        # Get chatbot instance and clear context
+        chatbot = get_chatbot()
+        chatbot.clear_disease_context()
+        
+        logger.info("Đã xóa context thành công")
+        return JSONResponse(content={
+            "message": "Đã xóa context phân tích bệnh",
+            "status": "success"
+        })
+        
+    except Exception as e:
+        logger.error(f"Lỗi khi xóa context: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Lỗi máy chủ nội bộ: {str(e)}")

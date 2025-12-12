@@ -16,6 +16,8 @@ if 'chatbot' not in st.session_state:
     st.session_state.chatbot = None
 if 'chat_messages' not in st.session_state:
     st.session_state.chat_messages = []
+if 'disease_result' not in st.session_state:
+    st.session_state.disease_result = None
 
 # --- SIDEBAR (THANH BÊN) ---
 with st.sidebar:
@@ -166,6 +168,9 @@ if app_mode == "🔍 Phát hiện bệnh":
                         
                         # Phân tích
                         result = detector.analyze_leaf_image_base64(base64_image)
+                        
+                        # Save result to session state for chatbot
+                        st.session_state.disease_result = result
 
                         # Check if it's an invalid image
                         if result. get("disease_type") == "invalid_image":
@@ -242,6 +247,16 @@ if app_mode == "🔍 Phát hiện bệnh":
                                 """,
                                 unsafe_allow_html=True
                             )
+                            
+                            # Add button to ask chatbot about the result
+                            if st.button("💬 Hỏi Chatbot về kết quả này", use_container_width=True, key="ask_chatbot_diseased"):
+                                # Initialize chatbot if needed
+                                if st.session_state.chatbot is None:
+                                    st.session_state.chatbot = PlantDiseaseChatbot()
+                                # Set disease context
+                                st.session_state.chatbot.set_disease_context(result)
+                                st.success("✅ Đã chuyển kết quả phân tích cho Chatbot. Chuyển sang tab 'Chatbot tư vấn' để hỏi!")
+                                st.info("💡 Bạn có thể hỏi: 'Giải thích chi tiết về bệnh này?', 'Tại sao cây bị bệnh?', 'Có cách chữa nào khác?'")
 
                         else:
                             # Healthy leaf case
@@ -272,6 +287,16 @@ if app_mode == "🔍 Phát hiện bệnh":
                                 unsafe_allow_html=True
                             )
                             
+                            # Add button to ask chatbot about healthy plant
+                            if st.button("💬 Hỏi Chatbot về chăm sóc cây", use_container_width=True, key="ask_chatbot_healthy"):
+                                # Initialize chatbot if needed
+                                if st.session_state.chatbot is None:
+                                    st.session_state.chatbot = PlantDiseaseChatbot()
+                                # Set disease context (even for healthy plants)
+                                st.session_state.chatbot.set_disease_context(result)
+                                st.success("✅ Đã chuyển kết quả cho Chatbot. Chuyển sang tab 'Chatbot tư vấn' để hỏi!")
+                                st.info("💡 Bạn có thể hỏi: 'Làm sao để cây luôn khỏe mạnh?', 'Nên bón phân gì?', 'Cách phòng bệnh?'")
+                            
                     except Exception as e: 
                         st.error(f"Lỗi: {str(e)}")
                         import traceback
@@ -288,6 +313,17 @@ else:  # Chatbot mode
         except Exception as e:
             st.error(f"Không thể khởi tạo chatbot: {str(e)}")
             st.stop()
+    
+    # Show disease context status if available
+    disease_ctx = st.session_state.chatbot.get_disease_context()
+    if disease_ctx:
+        with st.expander("📋 Kết quả phân tích đang được tham chiếu", expanded=False):
+            st.json(disease_ctx)
+            if st.button("🗑️ Xóa context phân tích"):
+                st.session_state.chatbot.clear_disease_context()
+                st.rerun()
+    else:
+        st.info("💡 Bạn có thể phân tích ảnh lá cây trước, sau đó nhấn nút 'Hỏi Chatbot' để chatbot có thể trả lời chi tiết hơn về kết quả phân tích!")
     
     # Display chat messages
     chat_container = st.container()

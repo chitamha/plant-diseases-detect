@@ -103,6 +103,7 @@ class PlantDiseaseChatbot:
             )
         self.client = Groq(api_key=self.api_key)
         self.chat_history: List[ChatMessage] = []
+        self.disease_context: Optional[Dict] = None  # Store disease analysis result
         logger.info("Khởi tạo Plant Disease Chatbot")
     
     def _create_system_prompt(self) -> str:
@@ -112,7 +113,7 @@ class PlantDiseaseChatbot:
         Returns:
             str: System prompt for the chatbot
         """
-        return """BẠN LÀ CHUYÊN GIA TƯ VẤN BỆNH CÂY TRỒNG thân thiện và am hiểu sâu sắc về:
+        base_prompt = """BẠN LÀ CHUYÊN GIA TƯ VẤN BỆNH CÂY TRỒNG thân thiện và am hiểu sâu sắc về:
 - Bệnh cây trồng (nấm, vi khuẩn, vi rút, sâu bệnh)
 - Triệu chứng và cách nhận biết bệnh
 - Phương pháp điều trị và phòng ngừa
@@ -137,6 +138,38 @@ QUAN TRỌNG:
 - Nếu không chắc chắn, hãy thừa nhận và đề xuất người dùng tham khảo thêm
 - Không đưa ra lời khuyên có thể gây hại cho cây hoặc người dùng
 - Khuyến khích người dùng sử dụng tính năng phát hiện bệnh bằng ảnh nếu cần chẩn đoán chính xác"""
+        
+        # Add disease context if available
+        if self.disease_context:
+            import json
+            context_str = json.dumps(self.disease_context, ensure_ascii=False, indent=2)
+            base_prompt += f"""
+
+═══════════════════════════════════════════════════════════════
+THÔNG TIN PHÂN TÍCH BỆNH HIỆN TẠI
+═══════════════════════════════════════════════════════════════
+
+Người dùng vừa phân tích một lá cây và nhận được kết quả sau:
+
+{context_str}
+
+HƯỚNG DẪN SỬ DỤNG THÔNG TIN NÀY:
+✓ Sử dụng thông tin này để trả lời các câu hỏi của người dùng về kết quả phân tích
+✓ Có thể giải thích chi tiết hơn về bệnh đã phát hiện
+✓ Đưa ra lời khuyên bổ sung dựa trên kết quả
+✓ Trả lời câu hỏi về triệu chứng, nguyên nhân, cách điều trị
+✓ Nếu người dùng hỏi về "bệnh này", "kết quả vừa rồi", "ảnh vừa phân tích" - hãy tham khảo thông tin trên
+
+VÍ DỤ CÂU HỎI NGƯỜI DÙNG CÓ THỂ HỎI:
+- "Giải thích rõ hơn về bệnh này được không?"
+- "Tại sao lá cây bị bệnh này?"
+- "Có cách nào khác để chữa không?"
+- "Bệnh này có nguy hiểm không?"
+- "Tôi nên làm gì tiếp theo?"
+- "Thuốc nào hiệu quả nhất?"
+"""
+        
+        return base_prompt
     
     def chat(
         self,
@@ -234,6 +267,44 @@ QUAN TRỌNG:
         """
         self.chat_history = []
         logger.info("Đã xóa lịch sử chat")
+    
+    def set_disease_context(self, disease_analysis: Dict):
+        """
+        Set the disease analysis context for the chatbot.
+        
+        This allows the chatbot to answer questions based on a specific
+        disease analysis result from image detection.
+        
+        Args:
+            disease_analysis (Dict): Disease analysis result from LeafDiseaseDetector
+        
+        Example:
+            >>> chatbot = PlantDiseaseChatbot()
+            >>> result = detector.analyze_leaf_image_base64(image)
+            >>> chatbot.set_disease_context(result)
+            >>> response = chatbot.chat("Giải thích về bệnh này?")
+        """
+        self.disease_context = disease_analysis
+        logger.info("Đã thiết lập context phân tích bệnh cho chatbot")
+    
+    def clear_disease_context(self):
+        """
+        Clear the disease analysis context.
+        
+        This removes the current disease analysis context, returning the
+        chatbot to general consultation mode.
+        """
+        self.disease_context = None
+        logger.info("Đã xóa context phân tích bệnh")
+    
+    def get_disease_context(self) -> Optional[Dict]:
+        """
+        Get the current disease analysis context.
+        
+        Returns:
+            Optional[Dict]: Current disease context or None if not set
+        """
+        return self.disease_context
     
     def get_history(self) -> List[Dict[str, str]]:
         """
