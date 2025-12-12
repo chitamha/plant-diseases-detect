@@ -204,7 +204,7 @@ if uploaded_file is not None:
                 # Save result to session state for chatbot
                 st.session_state.disease_result = result
                 
-                # Save uploaded image to history with metadata (using base64 to save memory)
+                # Save uploaded image to history with metadata
                 image_record = {
                     'filename': uploaded_file.name,
                     'image_base64': base64_image,
@@ -230,7 +230,6 @@ if uploaded_file is not None:
 if st.session_state.disease_result is not None:
     result = st.session_state.disease_result
     
-    # Check if it's an invalid image
     # Check if it's an invalid image
     if result.get("disease_type") == DISEASE_TYPE_INVALID:
         symptoms = result.get("symptoms", []) or []
@@ -347,7 +346,6 @@ if st.session_state.uploaded_images:
         if not st.session_state.confirm_clear_history:
             if st.button("🗑️ Xóa lịch sử", key="clear_history"):
                 st.session_state.confirm_clear_history = True
-                st.rerun()
         else:
             st.warning("⚠️ Bạn có chắc muốn xóa tất cả?")
             col_yes, col_no = st.columns(2)
@@ -359,10 +357,6 @@ if st.session_state.uploaded_images:
             with col_no:
                 if st.button("✗ Không", key="confirm_no"):
                     st.session_state.confirm_clear_history = False
-                    st.rerun()
-    
-    # Display images in a grid
-    num_images = len(st.session_state.uploaded_images)
     
     # Display in reverse order (most recent first)
     for idx, img_record in enumerate(reversed(st.session_state.uploaded_images)):
