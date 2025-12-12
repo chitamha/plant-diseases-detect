@@ -139,76 +139,80 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Create two columns: Disease Detection (left) and Chatbot (right)
-col_detection, col_chatbot = st.columns([1, 1])
+# ========== DISEASE DETECTION SECTION ==========
+st.markdown("### 🔍 Phát hiện bệnh")
+uploaded_file = st.file_uploader(
+    "Tải ảnh lá cây", type=["jpg", "jpeg", "png"], key="file_uploader")
 
-# ========== LEFT COLUMN: DISEASE DETECTION ==========
-with col_detection:
-    st.markdown("### 🔍 Phát hiện bệnh")
-    uploaded_file = st.file_uploader(
-        "Tải ảnh lá cây", type=["jpg", "jpeg", "png"], key="file_uploader")
-    
-    if uploaded_file is not None: 
+if uploaded_file is not None:
+    # Use expander to auto-collapse the image
+    with st.expander("🖼️ Xem hình ảnh đã tải", expanded=False):
         st.image(uploaded_file, caption="Hình ảnh đã tải", use_column_width=True)
-        
-        if st.button("🔍 Phân tích", use_container_width=True, key="analyze_btn"):
-            with st.spinner("Đang phân tích..."):
-                try:
-                    # ✅ GỌI TRỰC TIẾP (KHÔNG QUA API)
-                    detector = LeafDiseaseDetector()
-                    
-                    # Convert image to base64
-                    image_bytes = uploaded_file.getvalue()
-                    base64_image = base64.b64encode(image_bytes).decode('utf-8')
-                    
-                    # Phân tích
-                    result = detector.analyze_leaf_image_base64(base64_image)
-                    
-                    # Save result to session state for chatbot
-                    st.session_state.disease_result = result
+    
+    if st.button("🔍 Phân tích", use_container_width=True, key="analyze_btn"):
+        with st.spinner("Đang phân tích..."):
+            try:
+                # ✅ GỌI TRỰC TIẾP (KHÔNG QUA API)
+                detector = LeafDiseaseDetector()
+                
+                # Convert image to base64
+                image_bytes = uploaded_file.getvalue()
+                base64_image = base64.b64encode(image_bytes).decode('utf-8')
+                
+                # Phân tích
+                result = detector.analyze_leaf_image_base64(base64_image)
+                
+                # Save result to session state for chatbot
+                st.session_state.disease_result = result
+                
+                # Automatically send context to chatbot
+                if st.session_state.chatbot is None:
+                    st.session_state.chatbot = PlantDiseaseChatbot()
+                st.session_state.chatbot.set_disease_context(result)
 
-                    # Check if it's an invalid image
-                    if result.get("disease_type") == DISEASE_TYPE_INVALID:
-                        symptoms = result.get("symptoms", []) or []
-                        treatments = result.get("treatment", []) or []
+                # Check if it's an invalid image
+                # Check if it's an invalid image
+                if result.get("disease_type") == DISEASE_TYPE_INVALID:
+                    symptoms = result.get("symptoms", []) or []
+                    treatments = result.get("treatment", []) or []
 
-                        symptoms_html = ""
-                        if symptoms:
-                            symptoms_html = f"""
-                            <div class="section-title">Vấn đề</div>
-                            <ul class="symptom-list">
-                            {''.join(f"<li>{s}</li>" for s in symptoms)}
-                            </ul>
-                            """
+                    symptoms_html = ""
+                    if symptoms:
+                        symptoms_html = f"""
+                        <div class="section-title">Vấn đề</div>
+                        <ul class="symptom-list">
+                        {''.join(f"<li>{s}</li>" for s in symptoms)}
+                        </ul>
+                        """
 
-                        treatments_html = ""
-                        if treatments:
-                            treatments_html = f"""
-                            <div class="section-title">Lời khuyên</div>
-                            <ul class="treatment-list">
-                            {''.join(f"<li>{t}</li>" for t in treatments)}
-                            </ul>
-                            """
+                    treatments_html = ""
+                    if treatments:
+                        treatments_html = f"""
+                        <div class="section-title">Lời khuyên</div>
+                        <ul class="treatment-list">
+                        {''.join(f"<li>{t}</li>" for t in treatments)}
+                        </ul>
+                        """
 
-                        st.markdown(
-                            f"""
-                            <div class="result-card invalid">
+                    st.markdown(
+                        f"""
+                        <div class="result-card invalid">
 
-                            <div class="disease-title">⚠️ Ảnh không hợp lệ</div>
+                        <div class="disease-title">⚠️ Ảnh không hợp lệ</div>
 
-                            <div style="color:#ff5722; font-size:1.05em; margin-bottom: 1em;">
-                                Vui lòng tải lại hình ảnh của lá cây.
-                            </div>
+                        <div style="color:#ff5722; font-size:1.05em; margin-bottom: 1em;">
+                            Vui lòng tải lại hình ảnh của lá cây.
+                        </div>
 
-                            {symptoms_html}
-                            {treatments_html}
+                        {symptoms_html}
+                        {treatments_html}
 
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
-                    elif result.get("disease_detected"):
+                elif result.get("disease_detected"):
                         st.markdown(
                             f"""
                             <div class="result-card">
@@ -222,37 +226,31 @@ with col_detection:
                                 <div class="info-badge">Mức độ: {result.get('severity', 'N/A')}</div>
                                 <div class="info-badge">Độ tin cậy: {result.get('confidence', 'N/A')}%</div>
                             </div>
-
-                            <div class="section-title">Triệu chứng</div>
-                            <ul class="symptom-list">
-                                {''.join(f"<li>{s}</li>" for s in result.get("symptoms", []))}
-                            </ul>
-
-                            <div class="section-title">Nguyên nhân</div>
-                            <ul class="cause-list">
-                                {''.join(f"<li>{c}</li>" for c in result.get("possible_causes", []))}
-                            </ul>
-
-                            <div class="section-title">Biện pháp xử lý</div>
-                            <ul class="treatment-list">
-                                {''.join(f"<li>{t}</li>" for t in result.get("treatment", []))}
-                            </ul>
-
                             </div>
                             """,
                             unsafe_allow_html=True
                         )
                         
-                        # Add button to send context to chatbot
-                        if st.button("💬 Gửi kết quả cho Chatbot", use_container_width=True, key="ask_chatbot_diseased"):
-                            # Initialize chatbot if needed
-                            if st.session_state.chatbot is None:
-                                st.session_state.chatbot = PlantDiseaseChatbot()
-                            # Set disease context
-                            st.session_state.chatbot.set_disease_context(result)
-                            st.success("✅ Đã gửi kết quả cho Chatbot! Bạn có thể hỏi chatbot ở bên phải.")
+                        # Display symptoms, causes, and treatment in 2 columns
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.markdown("#### Triệu chứng")
+                            for symptom in result.get("symptoms", []):
+                                st.markdown(f"• {symptom}")
+                            
+                            st.markdown("#### Nguyên nhân")
+                            for cause in result.get("possible_causes", []):
+                                st.markdown(f"• {cause}")
+                        
+                        with col2:
+                            st.markdown("#### Biện pháp xử lý")
+                            for treatment in result.get("treatment", []):
+                                st.markdown(f"• {treatment}")
+                        
+                        st.success("✅ Kết quả đã được tự động gửi cho Chatbot! Bạn có thể hỏi chatbot ở phía dưới.")
 
-                    else:
+                else:
                         # Healthy leaf case
                         st.markdown(
                             f"""
@@ -281,68 +279,60 @@ with col_detection:
                             unsafe_allow_html=True
                         )
                         
-                        # Add button to send context to chatbot
-                        if st.button("💬 Gửi kết quả cho Chatbot", use_container_width=True, key="ask_chatbot_healthy"):
-                            # Initialize chatbot if needed
-                            if st.session_state.chatbot is None:
-                                st.session_state.chatbot = PlantDiseaseChatbot()
-                            # Set disease context (even for healthy plants)
-                            st.session_state.chatbot.set_disease_context(result)
-                            st.success("✅ Đã gửi kết quả cho Chatbot! Bạn có thể hỏi chatbot ở bên phải.")
-                        
-                except Exception as e: 
-                    st.error(f"Lỗi: {str(e)}")
-                    import traceback
-                    st.code(traceback.format_exc())
+                        st.success("✅ Kết quả đã được tự động gửi cho Chatbot! Bạn có thể hỏi chatbot ở phía dưới.")
+                    
+            except Exception as e: 
+                st.error(f"Lỗi: {str(e)}")
+                import traceback
+                st.code(traceback.format_exc())
 
-# ========== RIGHT COLUMN: CHATBOT ==========
-with col_chatbot:
-    st.markdown("### 💬 Chatbot Tư Vấn Bệnh Cây")
+# ========== CHATBOT SECTION (AT BOTTOM) ==========
+st.markdown("---")
+st.markdown("### 💬 Chatbot Tư Vấn Bệnh Cây")
+
+# Initialize chatbot if not exists
+if st.session_state.chatbot is None:
+    try:
+        st.session_state.chatbot = PlantDiseaseChatbot()
+    except Exception as e:
+        st.error(f"Không thể khởi tạo chatbot: {str(e)}")
+        st.stop()
+
+# Show disease context status if available
+disease_ctx = st.session_state.chatbot.get_disease_context()
+if disease_ctx:
+    with st.expander("📋 Kết quả phân tích đang được tham chiếu", expanded=False):
+        st.json(disease_ctx)
+        if st.button("🗑️ Xóa context phân tích", key="clear_context_btn"):
+            st.session_state.chatbot.clear_disease_context()
+            st.rerun()
+else:
+    st.info("💡 Phân tích ảnh lá cây ở phía trên để chatbot có thể trả lời chi tiết dựa trên kết quả phân tích!")
+
+# Display chat messages
+chat_container = st.container()
+with chat_container:
+    for message in st.session_state.chat_messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+# Chat input
+if prompt := st.chat_input("Nhập câu hỏi của bạn...", key="chat_input"):
+    # Display user message
+    with st.chat_message("user"):
+        st.markdown(prompt)
     
-    # Initialize chatbot if not exists
-    if st.session_state.chatbot is None:
-        try:
-            st.session_state.chatbot = PlantDiseaseChatbot()
-        except Exception as e:
-            st.error(f"Không thể khởi tạo chatbot: {str(e)}")
-            st.stop()
+    # Add to session state
+    st.session_state.chat_messages.append({"role": "user", "content": prompt})
     
-    # Show disease context status if available
-    disease_ctx = st.session_state.chatbot.get_disease_context()
-    if disease_ctx:
-        with st.expander("📋 Kết quả phân tích đang được tham chiếu", expanded=False):
-            st.json(disease_ctx)
-            if st.button("🗑️ Xóa context phân tích", key="clear_context_btn"):
-                st.session_state.chatbot.clear_disease_context()
-                st.rerun()
-    else:
-        st.info("💡 Phân tích ảnh lá cây bên trái, sau đó nhấn 'Gửi kết quả cho Chatbot' để chatbot có thể trả lời chi tiết!")
-    
-    # Display chat messages
-    chat_container = st.container()
-    with chat_container:
-        for message in st.session_state.chat_messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-    
-    # Chat input
-    if prompt := st.chat_input("Nhập câu hỏi của bạn...", key="chat_input"):
-        # Display user message
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        
-        # Add to session state
-        st.session_state.chat_messages.append({"role": "user", "content": prompt})
-        
-        # Get chatbot response
-        with st.chat_message("assistant"):
-            with st.spinner("Đang suy nghĩ..."):
-                try:
-                    response = st.session_state.chatbot.chat(prompt)
-                    st.markdown(response)
-                    st.session_state.chat_messages.append({"role": "assistant", "content": response})
-                except Exception as e:
-                    error_msg = f"Xin lỗi, đã có lỗi xảy ra: {str(e)}"
-                    st.error(error_msg)
-                    st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
-                    st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
+    # Get chatbot response
+    with st.chat_message("assistant"):
+        with st.spinner("Đang suy nghĩ..."):
+            try:
+                response = st.session_state.chatbot.chat(prompt)
+                st.markdown(response)
+                st.session_state.chat_messages.append({"role": "assistant", "content": response})
+            except Exception as e:
+                error_msg = f"Xin lỗi, đã có lỗi xảy ra: {str(e)}"
+                st.error(error_msg)
+                st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
