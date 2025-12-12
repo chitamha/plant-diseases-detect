@@ -23,6 +23,9 @@ if 'disease_result' not in st.session_state:
     st.session_state.disease_result = None
 if 'show_chat_dialog' not in st.session_state:
     st.session_state.show_chat_dialog = False
+# Initialize session state for uploaded images history
+if 'uploaded_images' not in st.session_state:
+    st.session_state.uploaded_images = []
 
 # --- SIDEBAR (THANH BÊN) ---
 with st.sidebar:
@@ -198,6 +201,16 @@ if uploaded_file is not None:
                 # Save result to session state for chatbot
                 st.session_state.disease_result = result
                 
+                # Save uploaded image to history with metadata
+                from datetime import datetime
+                image_record = {
+                    'filename': uploaded_file.name,
+                    'image_bytes': image_bytes,
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'result': result
+                }
+                st.session_state.uploaded_images.append(image_record)
+                
                 # Automatically send context to chatbot
                 if st.session_state.chatbot is None:
                     st.session_state.chatbot = PlantDiseaseChatbot()
@@ -320,6 +333,43 @@ if st.session_state.disease_result is not None:
             """,
             unsafe_allow_html=True
         )
+
+# ========== IMAGE HISTORY SECTION ==========
+if st.session_state.uploaded_images:
+    st.markdown("---")
+    st.markdown("## 📁 Lịch sử hình ảnh đã tải")
+    
+    # Add clear history button
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col3:
+        if st.button("🗑️ Xóa lịch sử", key="clear_history"):
+            st.session_state.uploaded_images = []
+            st.rerun()
+    
+    # Display images in a grid
+    num_images = len(st.session_state.uploaded_images)
+    
+    # Display in reverse order (most recent first)
+    for idx, img_record in enumerate(reversed(st.session_state.uploaded_images)):
+        with st.expander(f"🖼️ {img_record['filename']} - {img_record['timestamp']}", expanded=False):
+            col1, col2 = st.columns([1, 2])
+            
+            with col1:
+                st.image(img_record['image_bytes'], caption=img_record['filename'], use_container_width=True)
+            
+            with col2:
+                result = img_record['result']
+                
+                # Display summary based on result type
+                if result.get("disease_type") == DISEASE_TYPE_INVALID:
+                    st.warning("⚠️ Ảnh không hợp lệ")
+                elif result.get("disease_detected"):
+                    st.error(f"🦠 **Bệnh:** {result.get('disease_name', 'N/A')}")
+                    st.info(f"📊 **Độ tin cậy:** {result.get('confidence', 'N/A')}%")
+                    st.info(f"⚠️ **Mức độ:** {result.get('severity', 'N/A')}")
+                else:
+                    st.success("✅ Cây khỏe mạnh")
+                    st.info(f"📊 **Độ tin cậy:** {result.get('confidence', 'N/A')}%")
 
 # ========== FLOATING CHATBOT WIDGET ==========
 
