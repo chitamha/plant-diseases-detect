@@ -8,9 +8,9 @@ DISEASE_TYPE_INVALID = "invalid_image"
 
 # Set Streamlit theme to light and wide mode
 st.set_page_config(
-    page_title="Leaf Disease Detection",
+    page_title="Phát Hiện Bệnh Trên Lá",
     page_icon="🌿",
-    layout="wide",                         # Dùng giao diện rộng
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
@@ -29,22 +29,21 @@ with st.sidebar:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.image("black-tree-logo.png", width=100)
-    st.title("Thông tin Dự án")
+    st.title("Developing an AI Application")
     st.info("""
-    **Project 2: Developing an AI Application**
-            
-    Môn: Introduction to Artificial Intelligence
+    Hệ thống đánh giá, phân tích và phát hiện bệnh dựa trên dữ liệu lá nhờ vào Computer Vision và Machine Learning.
+    Đồng thời cung cấp các thông tin về triệu chứng, nguyên nhân và biện pháp xử lí.
     """)
     
     st.markdown("---")
     st.subheader("👥 Thành viên nhóm")
-    st.write("1. Hà Chí Tâm - 25122039")
-    st.write("2. Ngô Phạm Hồng Thức - 25122044")
-    st.write("3. Huỳnh Văn Phú - 25122036")
+    st.write("1. Chí Tâm - 25122039")
+    st.write("2. Hồng Thức - 25122044")
+    st.write("3. Văn Phú - 25122036")
     
     st.markdown("---")
     st.caption("Model: The Llama 4")
-    st.caption("Framework: Hugging Face, Groq & Streamlit")
+    st.caption("Framework: Groq & Streamlit")
 
 st.markdown("""
     <style>
@@ -165,22 +164,25 @@ st.markdown(
 
 st.markdown("""
     <div style='text-align: center; margin-top: 0.1em;'>
-        <h1 style='color: #1565c0; margin-bottom: 0; font-size: 2.5em'>PHÁT HIỆN BỆNH LÁ</h1>
+        <h1 style='color: #1565c0; margin-bottom: 0; font-size: 3em'>ỨNG DỤNG AI PHÁT HIỆN BỆNH TRÊN LÁ</h1>
         <p style='color: #616161; font-size: 1.15em;'>Tải ảnh lá để phát hiện bệnh và nhận lời khuyên</p>
     </div>
 """, unsafe_allow_html=True)
 
 # ========== DISEASE DETECTION SECTION ==========
-st.markdown("### 🔍 Phát hiện bệnh")
+st.markdown("## 🔍 Phân tích")
 uploaded_file = st.file_uploader(
     "Tải ảnh lá cây", type=["jpg", "jpeg", "png"], key="file_uploader")
 
 if uploaded_file is not None:
     # Use expander to auto-collapse the image
     with st.expander("🖼️ Xem hình ảnh đã tải", expanded=False):
-        st.image(uploaded_file, caption="Hình ảnh đã tải", width=None)
+        col1, col2, col3 = st.columns([1, 3, 1])
+        with col2:
+            st.image(uploaded_file, caption="Hình ảnh đã tải")
+
     
-    if st.button("🔍 Phân tích", use_container_width=True, key="analyze_btn"):
+    if st.button("🔍 Phân tích bệnh", use_container_width=True, key="analyze_btn"):
         with st.spinner("Đang phân tích..."):
             try:
                 # ✅ GỌI TRỰC TIẾP (KHÔNG QUA API)
@@ -329,10 +331,10 @@ if st.session_state.chatbot is None:
         st.error(f"Không thể khởi tạo chatbot: {str(e)}")
 
 # Use dialog for chat interface
-@st.dialog("💬 Chatbot Tư Vấn Bệnh Cây", width="large")
+@st.dialog("💬 Chatbot Tư vấn", width="large")
 def show_chatbot():
     # Header with clear button
-    col1, col2 = st.columns([4, 1])
+    col1, col2 = st.columns([2, 1], vertical_alignment="center")
     with col1:
         if st.session_state.disease_result:
             st.success("✅ Chatbot đã có thông tin phân tích bệnh")
@@ -404,12 +406,13 @@ st.html("""
         bottom: 20px !important;
         right: 20px !important;
         z-index: 9999 !important;
-        width: 60px !important;
-        height: 60px !important;
+        width: 50px !important;
+        height: 50px !important;
         border-radius: 50% !important;
         padding: 0 !important;
-        min-height: 60px !important;
+        min-height: 50px !important;
         font-size: 24px !important;
+        transform: scale(1.2) !important;
     }
     </style>
 """)
