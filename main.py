@@ -5,68 +5,103 @@ from core import LeafDiseaseDetector
 # Set Streamlit theme to light and wide mode
 st.set_page_config(
     page_title="Leaf Disease Detection",
-    layout="centered",
-    initial_sidebar_state="collapsed"
+    layout="wide",                         # Dùng giao diện rộng
+    initial_sidebar_state="expanded"
 )
 
 
-# Enhanced modern CSS
 st.markdown("""
     <style>
-    .stApp {
-        background:  linear-gradient(135deg, #e3f2fd 0%, #f7f9fa 100%);
+    /* ===== RESULT CARD ===== */
+    .result-card{
+    background: rgba(255,255,255,0.97);
+    border-radius: 18px;
+    padding: 2em 2em 1.8em;
+    margin-top: 1.8em;
+    box-shadow: 0 8px 28px rgba(27,94,32,0.10);
+    border: 1px solid rgba(46,125,50,0.18);
     }
-    .result-card {
-        # background: rgba(255,255,255,0.95);
-        # border-radius: 18px;
-        # box-shadow: 0 4px 24px rgba(44,62,80,0.10);
-        # padding: 2. 5em 2em;
-        # margin-top: 1. 5em;
-        # margin-bottom: 1.5em;
-        # transition: box-shadow 0.3s;
+
+    /* Header */
+    .result-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1em;
     }
-    .result-card:hover {
-        box-shadow: 0 8px 32px rgba(44,62,80,0.18);
+
+    .disease-title{
+    font-size: 2em;
+    font-weight: 800;
+    color: #2E7D32;
     }
-    .disease-title {
-        color: #1b5e20;
-        font-size: 2.2em;
-        font-weight: 700;
-        margin-bottom: 0.5em;
-        letter-spacing: 1px;
-        text-shadow: 0 2px 8px #e0e0e0;
+
+    /* Severity badge */
+    .severity{
+    padding: 0.35em 0.9em;
+    border-radius: 999px;
+    font-size: 0.95em;
+    font-weight: 700;
+    white-space: nowrap;
     }
-    .section-title {
-        color: #1976d2;
-        font-size: 1.25em;
-        font-weight: 600;
-        margin-top: 1.2em;
-        margin-bottom:  0.5em;
-        letter-spacing: 0.5px;
+
+    .severity.low{
+    background: #E8F5E9;
+    color: #2E7D32;
     }
-    .info-badge {
-        display: inline-block;
-        background: #e3f2fd;
-        border-radius: 8px;
-        padding: 0.3em 0.8em;
-        margin-right: 0.5em;
-        margin-bottom: 0.3em;
-        color: #1976d2;
-        font-size: 1em;
+
+    .severity.medium{
+    background: #FFF8E1;
+    color: #F9A825;
     }
-    .symptom-list, .cause-list, .treatment-list {
-        margin-left: 1em;
-        margin-bottom: 0.5em;
+
+    .severity.high{
+    background: #FDECEA;
+    color: #C62828;
     }
-    </style>
+
+    /* Section titles */
+    .section-title{
+    font-size: 1.15em;
+    font-weight: 700;
+    color: #1B5E20;
+    margin-top: 1.1em;
+    margin-bottom: 0.4em;
+    }
+
+    /* Lists */
+    .result-list{
+    margin-left: 1.1em;
+    color: #3E4A41;
+    }
+
+    .result-list li{
+    margin-bottom: 0.3em;
+    }
+
+    /* Footer info */
+    .confidence{
+    margin-top: 1.2em;
+    font-size: 0.95em;
+    color: #5F6F64;
+    }
+</style>
 """, unsafe_allow_html=True)
 
+with open("agriculture.png", "rb") as f:
+    logo = base64.b64encode(f.read()).decode()
+logo_html = f'<img src="data:image/png;base64,{logo}" class="header-logo">'
+
+st.markdown(
+        f"""<div style="text-align: center; margin: 0.2em auto; margin-bottom: 0; max-width: 105px;">
+            {logo_html}
+        </div>
+""", unsafe_allow_html=True)
 
 st.markdown("""
-    <div style='text-align: center; margin-top: 1em;'>
-        <span style='font-size: 2.5em;'>🌿</span>
-        <h1 style='color: #1565c0; margin-bottom: 0;'>Leaf Disease Detection</h1>
-        <p style='color: #616161; font-size: 1.15em;'>Upload a leaf image to detect diseases and get expert recommendations. </p>
+    <div style='text-align: center; margin-top: 0.1em;'>
+        <h1 style='color: #1565c0; margin-bottom: 0; font-size: 2.5em'>PHÁT HIỆN BỆNH LÁ</h1>
+        <p style='color: #616161; font-size: 1.15em;'>Tải ảnh lá để phát hiện bệnh và nhận lời khuyên</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -94,84 +129,108 @@ with col2:
 
                     # Check if it's an invalid image
                     if result. get("disease_type") == "invalid_image":
-                        st.markdown(
-                            "<div class='disease-title'>⚠️ Ảnh không hợp lệ</div>", unsafe_allow_html=True)
-                        st.markdown(
-                            "<div style='color: #ff5722; font-size: 1.1em; margin-bottom: 1em;'>Vui lòng tải lại hình ảnh của lá cây. </div>", unsafe_allow_html=True)
-                        
-                        # Show the symptoms (which contain the error message)
-                        if result.get("symptoms"):
-                            st.markdown(
-                                "<div class='section-title'>Vấn đề</div>", unsafe_allow_html=True)
-                            st.markdown("<ul class='symptom-list'>",
-                                        unsafe_allow_html=True)
-                            for symptom in result.get("symptoms", []):
-                                st.markdown(
-                                    f"<li>{symptom}</li>", unsafe_allow_html=True)
-                            st.markdown("</ul>", unsafe_allow_html=True)
+                        symptoms = result.get("symptoms", []) or []
+                        treatments = result.get("treatment", []) or []
 
-                        # Show treatment recommendations
-                        if result.get("treatment"):
-                            st. markdown(
-                                "<div class='section-title'>Lời khuyên</div>", unsafe_allow_html=True)
-                            st.markdown("<ul class='treatment-list'>",
-                                        unsafe_allow_html=True)
-                            for treat in result.get("treatment", []):
-                                st.markdown(
-                                    f"<li>{treat}</li>", unsafe_allow_html=True)
-                            st.markdown("</ul>", unsafe_allow_html=True)
+                        symptoms_html = ""
+                        if symptoms:
+                            symptoms_html = f"""
+                            <div class="section-title">Vấn đề</div>
+                            <ul class="symptom-list">
+                            {''.join(f"<li>{s}</li>" for s in symptoms)}
+                            </ul>
+                            """
 
-                        st.markdown("</div>", unsafe_allow_html=True)
+                        treatments_html = ""
+                        if treatments:
+                            treatments_html = f"""
+                            <div class="section-title">Lời khuyên</div>
+                            <ul class="treatment-list">
+                            {''.join(f"<li>{t}</li>" for t in treatments)}
+                            </ul>
+                            """
+
+                        st.markdown(
+                            f"""
+                            <div class="result-card invalid">
+
+                            <div class="disease-title">⚠️ Ảnh không hợp lệ</div>
+
+                            <div style="color:#ff5722; font-size:1.05em; margin-bottom: 1em;">
+                                Vui lòng tải lại hình ảnh của lá cây.
+                            </div>
+
+                            {symptoms_html}
+                            {treatments_html}
+
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
 
                     elif result.get("disease_detected"):
-                        st.markdown("<div class='result-card'>",
-                                    unsafe_allow_html=True)
                         st.markdown(
-                            f"<div class='disease-title'>🦠 {result.get('disease_name', 'N/A')}</div>", unsafe_allow_html=True)
-                        st.markdown(
-                            f"<span class='info-badge'>Loại: {result.get('disease_type', 'N/A')}</span>", unsafe_allow_html=True)
-                        st.markdown(
-                            f"<span class='info-badge'>Mức độ: {result.get('severity', 'N/A')}</span>", unsafe_allow_html=True)
-                        st.markdown(
-                            f"<span class='info-badge'>Đáng tin cậy: {result.get('confidence', 'N/A')}%</span>", unsafe_allow_html=True)
-                        st.markdown(
-                            "<div class='section-title'>Triệu chứng</div>", unsafe_allow_html=True)
-                        st.markdown("<ul class='symptom-list'>",
-                                    unsafe_allow_html=True)
-                        for symptom in result.get("symptoms", []):
-                            st.markdown(
-                                f"<li>{symptom}</li>", unsafe_allow_html=True)
-                        st.markdown("</ul>", unsafe_allow_html=True)
-                        st.markdown(
-                            "<div class='section-title'>Nguyên nhân</div>", unsafe_allow_html=True)
-                        st.markdown("<ul class='cause-list'>",
-                                    unsafe_allow_html=True)
-                        for cause in result.get("possible_causes", []):
-                            st.markdown(
-                                f"<li>{cause}</li>", unsafe_allow_html=True)
-                        st. markdown("</ul>", unsafe_allow_html=True)
-                        st.markdown(
-                            "<div class='section-title'>Biện pháp xử lý</div>", unsafe_allow_html=True)
-                        st.markdown("<ul class='treatment-list'>",
-                                    unsafe_allow_html=True)
-                        for treat in result.get("treatment", []):
-                            st.markdown(
-                                f"<li>{treat}</li>", unsafe_allow_html=True)
-                        st. markdown("</ul>", unsafe_allow_html=True)
-                        st.markdown("</div>", unsafe_allow_html=True)
+                            f"""
+                            <div class="result-card">
+
+                            <div class="disease-title">
+                                🦠 {result.get('disease_name', 'N/A')}
+                            </div>
+
+                            <div style="margin-bottom: 0.8em;">
+                                <div class="info-badge">Loại: {result.get('disease_type', 'N/A')}</div>
+                                <div class="info-badge">Mức độ: {result.get('severity', 'N/A')}</div>
+                                <div class="info-badge">Độ tin cậy: {result.get('confidence', 'N/A')}%</div>
+                            </div>
+
+                            <div class="section-title">Triệu chứng</div>
+                            <ul class="symptom-list">
+                                {''.join(f"<li>{s}</li>" for s in result.get("symptoms", []))}
+                            </ul>
+
+                            <div class="section-title">Nguyên nhân</div>
+                            <ul class="cause-list">
+                                {''.join(f"<li>{c}</li>" for c in result.get("possible_causes", []))}
+                            </ul>
+
+                            <div class="section-title">Biện pháp xử lý</div>
+                            <ul class="treatment-list">
+                                {''.join(f"<li>{t}</li>" for t in result.get("treatment", []))}
+                            </ul>
+
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+
                     else:
                         # Healthy leaf case
-                        st.markdown("<div class='result-card'>",
-                                    unsafe_allow_html=True)
                         st.markdown(
-                            "<div class='disease-title'>✅ Cây khoẻ mạnh</div>", unsafe_allow_html=True)
-                        st.markdown(
-                            "<div style='color: #4caf50; font-size: 1.1em; margin-bottom: 1em;'>Không phát hiện bệnh trên lá cây</div>", unsafe_allow_html=True)
-                        st.markdown(
-                            f"<span class='info-badge'>Tình trạng:  {result.get('disease_type', 'healthy')}</span>", unsafe_allow_html=True)
-                        st.markdown(
-                            f"<span class='info-badge'>Đáng tin cậy: {result.get('confidence', 'N/A')}%</span>", unsafe_allow_html=True)
-                        st.markdown("</div>", unsafe_allow_html=True)
+                            f"""
+                            <div class="result-card">
+
+                            <div class="disease-title">✅ Cây khoẻ mạnh</div>
+
+                            <div style="
+                                color: #4caf50;
+                                font-size: 1.1em;
+                                margin-bottom: 1em;
+                            ">
+                                Không phát hiện bệnh trên lá cây
+                            </div>
+
+                            <div class="info-badge">
+                                🌱 Tình trạng: {result.get('disease_type', 'healthy')}
+                            </div>
+
+                            <div class="info-badge">
+                                🔬 Đáng tin cậy: {result.get('confidence', 'N/A')}%
+                            </div>
+
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
                         
                 except Exception as e: 
                     st.error(f"Lỗi: {str(e)}")
