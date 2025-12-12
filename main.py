@@ -5,10 +5,32 @@ from core import LeafDiseaseDetector
 # Set Streamlit theme to light and wide mode
 st.set_page_config(
     page_title="Leaf Disease Detection",
+    page_icon="🌿",
     layout="wide",                         # Dùng giao diện rộng
     initial_sidebar_state="expanded"
 )
 
+# --- SIDEBAR (THANH BÊN) ---
+with st.sidebar:
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("black-tree-logo.png", width=100)
+    st.title("Thông tin Dự án")
+    st.info("""
+    **Project 2: Developing an AI Application**
+            
+    Môn: Introduction to Artificial Intelligence
+    """)
+    
+    st.markdown("---")
+    st.subheader("👥 Thành viên nhóm")
+    st.write("1. Hà Chí Tâm - 25122039")
+    st.write("2. Ngô Phạm Hồng Thức - 25122044")
+    st.write("3. Huỳnh Văn Phú - 25122036")
+    
+    st.markdown("---")
+    st.caption("Model: The Llama 4")
+    st.caption("Framework: Hugging Face, Groq & Streamlit")
 
 st.markdown("""
     <style>
@@ -114,7 +136,7 @@ with col1:
 
 with col2:
     if uploaded_file is not None:
-        if st.button("🔍 Phát hiện bệnh", use_container_width=True):
+        if st.button("🔍 Phân tích", use_container_width=True):
             with st.spinner("Đang phân tích..."):
                 try:
                     # ✅ GỌI TRỰC TIẾP (KHÔNG QUA API)
