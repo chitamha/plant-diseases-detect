@@ -353,7 +353,6 @@ if st.session_state.uploaded_images:
                 if st.button("✓ Có", key="confirm_yes"):
                     st.session_state.uploaded_images = []
                     st.session_state.confirm_clear_history = False
-                    st.rerun()
             with col_no:
                 if st.button("✗ Không", key="confirm_no"):
                     st.session_state.confirm_clear_history = False
