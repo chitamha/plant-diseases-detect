@@ -1,6 +1,6 @@
 import streamlit as st
 import base64
-from PIL import Image
+from datetime import datetime
 from core import LeafDiseaseDetector
 from chatbot import PlantDiseaseChatbot
 
@@ -24,6 +24,11 @@ if 'disease_result' not in st.session_state:
     st.session_state.disease_result = None
 if 'show_chat_dialog' not in st.session_state:
     st.session_state.show_chat_dialog = False
+# Initialize session state for uploaded images history
+if 'uploaded_images' not in st.session_state:
+    st.session_state.uploaded_images = []
+if 'confirm_clear_history' not in st.session_state:
+    st.session_state.confirm_clear_history = False
 
 # --- SIDEBAR (THANH BÊN) ---
 with st.sidebar:
@@ -176,12 +181,6 @@ uploaded_file = st.file_uploader(
     "Tải ảnh lá cây", type=["jpg", "jpeg", "png"], key="file_uploader")
 
 if uploaded_file is not None:
-    # Use expander to auto-collapse the image
-    with st.expander("🖼️ Xem hình ảnh đã tải", expanded=False):
-        img = Image.open(uploaded_file)
-        img = img.resize((150, 150))   # (width, height)
-        st.image(img)
-  
     if st.button("🔍 Phân tích bệnh", use_container_width=True, key="analyze_btn"):
         with st.spinner("Đang phân tích..."):
             try:
@@ -197,6 +196,15 @@ if uploaded_file is not None:
                 
                 # Save result to session state for chatbot
                 st.session_state.disease_result = result
+                
+                # Save uploaded image to history with metadata
+                image_record = {
+                    'filename': uploaded_file.name,
+                    'image_base64': base64_image,
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'result': result
+                }
+                st.session_state.uploaded_images.append(image_record)
                 
                 # Automatically send context to chatbot
                 if st.session_state.chatbot is None:
@@ -215,7 +223,6 @@ if uploaded_file is not None:
 if st.session_state.disease_result is not None:
     result = st.session_state.disease_result
     
-    # Check if it's an invalid image
     # Check if it's an invalid image
     if result.get("disease_type") == DISEASE_TYPE_INVALID:
         symptoms = result.get("symptoms", []) or []
@@ -320,6 +327,42 @@ if st.session_state.disease_result is not None:
             """,
             unsafe_allow_html=True
         )
+
+# ========== IMAGE HISTORY SECTION ==========
+
+st.markdown("---")
+st.markdown("## 📁 Lịch sử hình ảnh đã tải")
+if st.session_state.uploaded_images:
+    # Add clear history button with confirmation
+    if not st.session_state.confirm_clear_history:
+        if st.button("🗑️ Xóa lịch sử", key="clear_history"):
+            st.session_state.confirm_clear_history = True
+            st.session_state.uploaded_images = []
+            st.session_state.confirm_clear_history = False
+    
+    # Display in reverse order (most recent first)
+    for idx, img_record in enumerate(reversed(st.session_state.uploaded_images)):
+        with st.expander(f"🖼️ {img_record['filename']} - {img_record['timestamp']}", expanded=False):
+            col1, col2 = st.columns([1, 2])
+            
+            with col1:
+                # Decode base64 image for display
+                image_bytes = base64.b64decode(img_record['image_base64'])
+                st.image(image_bytes, caption=img_record['filename'], use_container_width=True)
+            
+            with col2:
+                result = img_record['result']
+                
+                # Display summary based on result type
+                if result.get("disease_type") == DISEASE_TYPE_INVALID:
+                    st.warning("⚠️ Ảnh không hợp lệ")
+                elif result.get("disease_detected"):
+                    st.error(f"🦠 **Bệnh:** {result.get('disease_name', 'N/A')}")
+                    st.info(f"📊 **Độ tin cậy:** {result.get('confidence', 'N/A')}%")
+                    st.info(f"⚠️ **Mức độ:** {result.get('severity', 'N/A')}")
+                else:
+                    st.success("✅ Cây khỏe mạnh")
+                    st.info(f"📊 **Độ tin cậy:** {result.get('confidence', 'N/A')}%")
 
 # ========== FLOATING CHATBOT WIDGET ==========
 
