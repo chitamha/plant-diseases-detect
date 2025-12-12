@@ -96,7 +96,7 @@ class PlantDiseaseChatbot:
         Note:
             Ensure your .env file contains GROQ_API_KEY or pass it directly.
         """
-        self.api_key = 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
+        self.api_key = "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"
         # load_dotenv()
         # self.api_key = api_key or os.environ.get("GROQ_API_KEY")
         # if not self.api_key:
