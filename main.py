@@ -349,13 +349,18 @@ if st.session_state.uploaded_images:
         else:
             st.warning("⚠️ Bạn có chắc muốn xóa tất cả?")
             col_yes, col_no = st.columns(2)
+            confirmed = False
+            cancelled = False
             with col_yes:
                 if st.button("✓ Có", key="confirm_yes"):
                     st.session_state.uploaded_images = []
-                    st.session_state.confirm_clear_history = False
+                    confirmed = True
             with col_no:
                 if st.button("✗ Không", key="confirm_no"):
-                    st.session_state.confirm_clear_history = False
+                    cancelled = True
+            # Reset confirmation state after either button is clicked
+            if confirmed or cancelled:
+                st.session_state.confirm_clear_history = False
     
     # Display in reverse order (most recent first)
     for idx, img_record in enumerate(reversed(st.session_state.uploaded_images)):
