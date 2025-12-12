@@ -147,7 +147,7 @@ uploaded_file = st.file_uploader(
 if uploaded_file is not None:
     # Use expander to auto-collapse the image
     with st.expander("🖼️ Xem hình ảnh đã tải", expanded=False):
-        st.image(uploaded_file, caption="Hình ảnh đã tải", use_column_width=True)
+        st.image(uploaded_file, caption="Hình ảnh đã tải", width=None)
     
     if st.button("🔍 Phân tích", use_container_width=True, key="analyze_btn"):
         with st.spinner("Đang phân tích..."):
@@ -287,7 +287,17 @@ if st.session_state.disease_result is not None:
 
 # ========== CHATBOT SECTION (AT BOTTOM) ==========
 st.markdown("---")
-st.markdown("### 💬 Chatbot Tư Vấn Bệnh Cây")
+
+# Create columns for chatbot header and clear button
+col_header, col_clear = st.columns([3, 1])
+with col_header:
+    st.markdown("### 💬 Chatbot Tư Vấn Bệnh Cây")
+with col_clear:
+    if st.button("🗑️ Xóa cuộc trò chuyện", key="clear_chat_btn", use_container_width=True):
+        st.session_state.chat_messages = []
+        if st.session_state.chatbot is not None:
+            st.session_state.chatbot.clear_history()
+        st.rerun()
 
 # Initialize chatbot if not exists
 if st.session_state.chatbot is None:
