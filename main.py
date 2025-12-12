@@ -173,7 +173,7 @@ if app_mode == "🔍 Phát hiện bệnh":
                         st.session_state.disease_result = result
 
                         # Check if it's an invalid image
-                        if result. get("disease_type") == "invalid_image":
+                        if result.get("disease_type") == "invalid_image":
                             symptoms = result.get("symptoms", []) or []
                             treatments = result.get("treatment", []) or []
 
