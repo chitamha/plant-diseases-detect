@@ -15,6 +15,7 @@ Features:
 """
 
 import os
+import json
 import logging
 from typing import List, Dict, Optional
 from dataclasses import dataclass
@@ -141,7 +142,6 @@ QUAN TRỌNG:
         
         # Add disease context if available
         if self.disease_context:
-            import json
             context_str = json.dumps(self.disease_context, ensure_ascii=False, indent=2)
             base_prompt += f"""
 

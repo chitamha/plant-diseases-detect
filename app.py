@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import logging
 import os
+import threading
 from utils import convert_image_to_base64_and_test, test_with_base64_data
 from chatbot import PlantDiseaseChatbot
 
@@ -21,14 +22,18 @@ class ChatRequest(BaseModel):
 class SetContextRequest(BaseModel):
     disease_analysis: dict
 
-# Initialize chatbot (singleton pattern)
+# Initialize chatbot (singleton pattern with thread safety)
 chatbot_instance = None
+chatbot_lock = threading.Lock()
 
 def get_chatbot():
-    """Get or create chatbot instance"""
+    """Get or create chatbot instance in a thread-safe manner"""
     global chatbot_instance
     if chatbot_instance is None:
-        chatbot_instance = PlantDiseaseChatbot()
+        with chatbot_lock:
+            # Double-check locking pattern
+            if chatbot_instance is None:
+                chatbot_instance = PlantDiseaseChatbot()
     return chatbot_instance
 
 @app.post('/disease-detection-file')

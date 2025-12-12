@@ -3,6 +3,11 @@ import base64
 from core import LeafDiseaseDetector
 from chatbot import PlantDiseaseChatbot
 
+# Constants
+APP_MODE_DETECTION = "🔍 Phát hiện bệnh"
+APP_MODE_CHATBOT = "💬 Chatbot tư vấn"
+DISEASE_TYPE_INVALID = "invalid_image"
+
 # Set Streamlit theme to light and wide mode
 st.set_page_config(
     page_title="Leaf Disease Detection",
@@ -45,7 +50,7 @@ with st.sidebar:
     st.subheader("🤖 Chế độ")
     app_mode = st.radio(
         "Chọn chức năng:",
-        ["🔍 Phát hiện bệnh", "💬 Chatbot tư vấn"],
+        [APP_MODE_DETECTION, APP_MODE_CHATBOT],
         label_visibility="collapsed"
     )
 
@@ -145,7 +150,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Check which mode is selected
-if app_mode == "🔍 Phát hiện bệnh":
+if app_mode == APP_MODE_DETECTION:
     # Original disease detection UI
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -173,7 +178,7 @@ if app_mode == "🔍 Phát hiện bệnh":
                         st.session_state.disease_result = result
 
                         # Check if it's an invalid image
-                        if result.get("disease_type") == "invalid_image":
+                        if result.get("disease_type") == DISEASE_TYPE_INVALID:
                             symptoms = result.get("symptoms", []) or []
                             treatments = result.get("treatment", []) or []
 
