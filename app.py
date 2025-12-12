@@ -1,14 +1,32 @@
 from fastapi import FastAPI, Request, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 import logging
 import os
 from utils import convert_image_to_base64_and_test, test_with_base64_data
+from chatbot import PlantDiseaseChatbot
 
 # Định cấu hình ghi nhật ký
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="API Phát Hiện Bệnh Lá", version="1.0.0")
+
+# Pydantic models for request validation
+class ChatRequest(BaseModel):
+    message: str
+    temperature: float = 0.7
+    max_tokens: int = 1024
+
+# Initialize chatbot (singleton pattern)
+chatbot_instance = None
+
+def get_chatbot():
+    """Get or create chatbot instance"""
+    global chatbot_instance
+    if chatbot_instance is None:
+        chatbot_instance = PlantDiseaseChatbot()
+    return chatbot_instance
 
 @app.post('/disease-detection-file')
 async def disease_detection_file(file: UploadFile = File(...)):
@@ -45,6 +63,64 @@ async def root():
         "message": "API Phát Hiện Bệnh Lá",
         "version": "1.0.0",
         "endpoints": {
-            "disease_detection_file": "/disease-detection-file (POST, file upload)"
+            "disease_detection_file": "/disease-detection-file (POST, file upload)",
+            "chatbot": "/chatbot (POST, JSON with message field)",
+            "chatbot_clear": "/chatbot/clear (POST, clear chat history)"
         }
     }
+
+
+@app.post('/chatbot')
+async def chatbot_endpoint(request: ChatRequest):
+    """
+    Điểm cuối chatbot để trò chuyện với AI về bệnh cây.
+    Chấp nhận JSON với trường 'message'.
+    """
+    try:
+        logger.info(f"Nhận tin nhắn chatbot: {request.message[:50]}...")
+        
+        # Get chatbot instance
+        chatbot = get_chatbot()
+        
+        # Get response
+        response = chatbot.chat(
+            request.message,
+            temperature=request.temperature,
+            max_tokens=request.max_tokens
+        )
+        
+        logger.info("Chatbot đã trả lời thành công")
+        return JSONResponse(content={
+            "response": response,
+            "status": "success"
+        })
+        
+    except ValueError as e:
+        logger.error(f"Lỗi validation: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Lỗi chatbot: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Lỗi máy chủ nội bộ: {str(e)}")
+
+
+@app.post('/chatbot/clear')
+async def chatbot_clear():
+    """
+    Xóa lịch sử chat của chatbot.
+    """
+    try:
+        logger.info("Yêu cầu xóa lịch sử chat")
+        
+        # Get chatbot instance and clear history
+        chatbot = get_chatbot()
+        chatbot.clear_history()
+        
+        logger.info("Đã xóa lịch sử chat thành công")
+        return JSONResponse(content={
+            "message": "Đã xóa lịch sử chat",
+            "status": "success"
+        })
+        
+    except Exception as e:
+        logger.error(f"Lỗi khi xóa lịch sử: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Lỗi máy chủ nội bộ: {str(e)}")
