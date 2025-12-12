@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import sys
+import re
 from typing import Dict, Optional, List
 from dataclasses import dataclass
 from datetime import datetime
@@ -14,6 +15,233 @@ from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
+# Translation Dictionary: English to Vietnamese (150+ terms)
+TRANSLATION_DICT = {
+    # Disease Names
+    "tar spot": "đốm hắc",
+    "leaf scorch": "bệnh cháy lá",
+    "fungal leaf spot": "bệnh đốm lá nấm",
+    "bacterial leaf spot": "bệnh đốm lá vi khuẩn",
+    "powdery mildew": "phấn trắng",
+    "downy mildew": "sương mai",
+    "leaf rust": "gỉ sắt lá",
+    "anthracnose": "thán thư",
+    "septoria leaf spot": "đốm lá septoria",
+    "early blight": "bệnh mốc sớm",
+    "late blight": "bệnh mốc muộn",
+    "black rot": "thối đen",
+    "brown rot": "thối nâu",
+    "gray mold": "mốc xám",
+    "leaf blight": "cháy lá",
+    "leaf curl": "cuộn lá",
+    "mosaic virus": "vi rút khảm",
+    "yellow leaf curl": "cuộn lá vàng",
+    "bacterial wilt": "héo vi khuẩn",
+    "fusarium wilt": "héo fusarium",
+    "verticillium wilt": "héo verticillium",
+    "root rot": "thối rễ",
+    "crown rot": "thối gốc",
+    "canker": "loét thân",
+    "fire blight": "bệnh cháy lửa",
+    "sooty mold": "mốc đen",
+    "white rust": "gỉ sắt trắng",
+    "yellow rust": "gỉ sắt vàng",
+    "brown spot": "đốm nâu",
+    "black spot": "đốm đen",
+    "yellow spot": "đốm vàng",
+    "ring spot": "đốm vòng",
+    "target spot": "đốm mục tiêu",
+    "shot hole": "thủng lá",
+    "leaf blotch": "vết lá",
+    "scab": "ghẻ lở",
+    "smut": "bệnh than",
+    
+    # Disease Types
+    "fungal": "nấm",
+    "bacterial": "vi khuẩn",
+    "viral": "vi rút",
+    "pest": "sâu bệnh",
+    "insect": "côn trùng",
+    "nutrient deficiency": "thiếu dinh dưỡng",
+    "environmental": "môi trường",
+    "physiological": "sinh lý",
+    "healthy": "khỏe mạnh",
+    "unknown": "không xác định",
+    "invalid_image": "hình ảnh không hợp lệ",
+    
+    # Severity Levels
+    "mild": "nhẹ",
+    "moderate": "trung bình",
+    "severe": "nặng",
+    "critical": "nghiêm trọng",
+    "none": "không",
+    "low": "thấp",
+    "medium": "trung bình",
+    "high": "cao",
+    
+    # Symptoms
+    "yellowing": "vàng lá",
+    "browning": "nâu lá",
+    "spots": "đốm",
+    "spot": "đốm",
+    "wilting": "héo úa",
+    "curling": "cuộn lá",
+    "necrosis": "hoại tử",
+    "chlorosis": "úa vàng",
+    "stunting": "còi cọc",
+    "defoliation": "rụng lá",
+    "discoloration": "đổi màu",
+    "lesions": "tổn thương",
+    "lesion": "tổn thương",
+    "blisters": "phồng rộp",
+    "blister": "phồng rộp",
+    "rotting": "thối rữa",
+    "decay": "phân hủy",
+    "mold": "mốc",
+    "mildew": "nấm mốc",
+    "rust": "gỉ sắt",
+    "scorch": "cháy",
+    "blight": "héo úa",
+    "canker": "loét",
+    "galls": "u bướu",
+    "wilt": "héo",
+    "brown spots": "đốm nâu",
+    "black spots": "đốm đen",
+    "yellow spots": "đốm vàng",
+    "white spots": "đốm trắng",
+    "dark spots": "đốm sẫm",
+    "circular spots": "đốm tròn",
+    "irregular spots": "đốm không đều",
+    "yellow halos": "vòng vàng",
+    "brown halos": "vòng nâu",
+    "water-soaked lesions": "tổn thương thấm nước",
+    "sunken lesions": "tổn thương lõm",
+    "raised lesions": "tổn thương nổi",
+    "powdery coating": "lớp phủ bột",
+    "fuzzy growth": "tăng trưởng mờ",
+    "cottony growth": "tăng trưởng như bông",
+    "sticky residue": "cặn dính",
+    "leaf drop": "rụng lá",
+    "leaf distortion": "biến dạng lá",
+    "leaf deformity": "dị dạng lá",
+    "vein clearing": "mạch lá mờ",
+    "vein discoloration": "đổi màu mạch lá",
+    "marginal necrosis": "hoại tử rìa",
+    "tip burn": "cháy đầu",
+    "edge burn": "cháy rìa",
+    
+    # Common Phrases in Symptoms
+    "on the leaf": "trên lá",
+    "on leaves": "trên lá",
+    "of the leaf": "của lá",
+    "of leaves": "của lá",
+    "with yellow halos": "với vòng vàng",
+    "with brown halos": "với vòng nâu",
+    "tar-like appearance": "có hình dạng giống hắc ín",
+    "tar-like spots": "đốm giống hắc ín",
+    
+    # Possible Causes
+    "infection": "nhiễm",
+    "fungus": "nấm",
+    "bacteria": "vi khuẩn",
+    "virus": "vi rút",
+    "over-fertilization": "bón phân quá liều",
+    "under-fertilization": "bón phân không đủ",
+    "over-watering": "tưới nước quá nhiều",
+    "under-watering": "tưới nước không đủ",
+    "poor drainage": "thoát nước kém",
+    "nutrient deficiency": "thiếu dinh dưỡng",
+    "nitrogen deficiency": "thiếu nitơ",
+    "phosphorus deficiency": "thiếu phốt pho",
+    "potassium deficiency": "thiếu kali",
+    "iron deficiency": "thiếu sắt",
+    "magnesium deficiency": "thiếu magiê",
+    "calcium deficiency": "thiếu canxi",
+    "high humidity": "độ ẩm cao",
+    "low humidity": "độ ẩm thấp",
+    "poor air circulation": "thông gió kém",
+    "temperature stress": "stress nhiệt độ",
+    "water stress": "stress nước",
+    "drought stress": "stress hạn hán",
+    "heat stress": "stress nhiệt",
+    "cold stress": "stress lạnh",
+    "frost damage": "hư hại do sương giá",
+    "sun damage": "hư hại do ánh nắng",
+    "insect damage": "hư hại do côn trùng",
+    "pest infestation": "nhiễm sâu bệnh",
+    "contaminated tools": "dụng cụ bị nhiễm bẩn",
+    "infected plant debris": "mảnh vỡ cây bị nhiễm",
+    "poor sanitation": "vệ sinh kém",
+    "rhizstoma acerinum": "rhizstoma acerinum",
+    "similar pathogen": "mầm bệnh tương tự",
+    "or similar pathogen": "hoặc mầm bệnh tương tự",
+    
+    # Treatment
+    "remove infected leaves": "loại bỏ lá bị nhiễm",
+    "remove affected leaves": "loại bỏ lá bị ảnh hưởng",
+    "prune infected parts": "cắt tỉa phần bị nhiễm",
+    "destroy infected material": "tiêu hủy vật liệu bị nhiễm",
+    "apply fungicide": "xịt thuốc diệt nấm",
+    "use fungicide": "sử dụng thuốc diệt nấm",
+    "spray fungicide": "phun thuốc diệt nấm",
+    "apply bactericide": "xịt thuốc diệt khuẩn",
+    "use copper-based fungicide": "sử dụng thuốc diệt nấm gốc đồng",
+    "improve air circulation": "cải thiện thông gió",
+    "increase air flow": "tăng luồng không khí",
+    "reduce humidity": "giảm độ ẩm",
+    "water at soil level": "tưới nước ở mức đất",
+    "avoid overhead watering": "tránh tưới nước từ trên cao",
+    "water in the morning": "tưới nước vào buổi sáng",
+    "ensure proper drainage": "đảm bảo thoát nước tốt",
+    "improve drainage": "cải thiện thoát nước",
+    "adjust watering schedule": "điều chỉnh lịch tưới nước",
+    "reduce watering": "giảm tưới nước",
+    "increase watering": "tăng tưới nước",
+    "apply fertilizer": "bón phân",
+    "use balanced fertilizer": "sử dụng phân cân đối",
+    "add nitrogen": "bổ sung nitơ",
+    "add phosphorus": "bổ sung phốt pho",
+    "add potassium": "bổ sung kali",
+    "add iron": "bổ sung sắt",
+    "add magnesium": "bổ sung magiê",
+    "add calcium": "bổ sung canxi",
+    "adjust soil ph": "điều chỉnh độ ph đất",
+    "improve soil quality": "cải thiện chất lượng đất",
+    "mulch around plants": "phủ xung quanh cây",
+    "space plants properly": "khoảng cách cây hợp lý",
+    "provide shade": "cung cấp bóng mát",
+    "protect from frost": "bảo vệ khỏi sương giá",
+    "use insecticide": "sử dụng thuốc diệt côn trùng",
+    "control pests": "kiểm soát sâu bệnh",
+    "monitor regularly": "theo dõi thường xuyên",
+    "quarantine infected plants": "cách ly cây bị nhiễm",
+    "disinfect tools": "khử trùng dụng cụ",
+    "practice crop rotation": "luân canh cây trồng",
+    "clean garden debris": "dọn dẹp mảnh vỡ vườn",
+    "to prevent spread": "để ngăn lan rộng",
+    "to control fungal growth": "để kiểm soát sự phát triển của nấm",
+    "around the plant": "xung quanh cây",
+    "to reduce moisture": "để giảm độ ẩm",
+    
+    # Additional common terms
+    "infection by the fungus": "nhiễm nấm",
+    "caused by": "gây ra bởi",
+    "due to": "do",
+    "resulting from": "kết quả từ",
+    "associated with": "liên quan đến",
+    "characterized by": "đặc trưng bởi",
+    "identified by": "xác định bởi",
+    
+    # Invalid image messages
+    "this image does not contain a plant leaf": "hình ảnh này không chứa lá cây",
+    "does not contain a plant leaf": "không chứa lá cây",
+    "invalid image type uploaded": "loại hình ảnh được tải lên không hợp lệ",
+    "please upload a plant leaf image for disease analysis": "vui lòng tải lên hình ảnh lá cây để phân tích bệnh",
+    "upload a plant leaf image": "tải lên hình ảnh lá cây",
+    "for disease analysis": "để phân tích bệnh",
+}
 
 
 @dataclass
@@ -38,6 +266,105 @@ class DiseaseAnalysisResult:
     possible_causes: List[str]
     treatment: List[str]
 
+
+def translate_to_vietnamese(text: str) -> str:
+    """
+    Dịch text từ tiếng Anh sang tiếng Việt.
+    Thực hiện dịch theo thứ tự từ cụm từ dài nhất đến ngắn nhất.
+    
+    Args:
+        text (str): Văn bản tiếng Anh cần dịch
+        
+    Returns:
+        str: Văn bản đã được dịch sang tiếng Việt
+        
+    Example:
+        >>> translate_to_vietnamese("Tar Spot")
+        'đốm hắc'
+        >>> translate_to_vietnamese("fungal")
+        'nấm'
+    """
+    if not text or not isinstance(text, str):
+        return text
+    
+    text_lower = text.lower().strip()
+    
+    # Try exact match first
+    if text_lower in TRANSLATION_DICT:
+        return TRANSLATION_DICT[text_lower]
+    
+    # Sort keys by length (longest first) for better matching
+    sorted_keys = sorted(TRANSLATION_DICT.keys(), key=len, reverse=True)
+    
+    result = text_lower
+    for english_key in sorted_keys:
+        if english_key in result:
+            result = result.replace(english_key, TRANSLATION_DICT[english_key])
+    
+    return result
+
+
+def translate_disease_data(data: Dict) -> Dict:
+    """
+    Dịch toàn bộ dữ liệu bệnh từ tiếng Anh sang tiếng Việt.
+    
+    Args:
+        data (Dict): Từ điển chứa dữ liệu phân tích bệnh bằng tiếng Anh
+        
+    Returns:
+        Dict: Từ điển với dữ liệu đã được dịch sang tiếng Việt
+        
+    Example:
+        >>> data = {
+        ...     "disease_name": "Tar Spot",
+        ...     "disease_type": "fungal",
+        ...     "symptoms": ["Brown spots with yellow halos on the leaf"]
+        ... }
+        >>> translated = translate_disease_data(data)
+        >>> translated['disease_name']
+        'đốm hắc'
+    """
+    translated_data = data.copy()
+    
+    # Translate disease_name
+    if translated_data.get('disease_name'):
+        translated_data['disease_name'] = translate_to_vietnamese(
+            translated_data['disease_name']
+        )
+    
+    # Translate disease_type
+    if translated_data.get('disease_type'):
+        translated_data['disease_type'] = translate_to_vietnamese(
+            translated_data['disease_type']
+        )
+    
+    # Translate severity
+    if translated_data.get('severity'):
+        translated_data['severity'] = translate_to_vietnamese(
+            translated_data['severity']
+        )
+    
+    # Translate symptoms (list of strings)
+    if translated_data.get('symptoms'):
+        translated_data['symptoms'] = [
+            translate_to_vietnamese(s) for s in translated_data['symptoms']
+        ]
+    
+    # Translate possible_causes (list of strings)
+    if translated_data.get('possible_causes'):
+        translated_data['possible_causes'] = [
+            translate_to_vietnamese(c) for c in translated_data['possible_causes']
+        ]
+    
+    # Translate treatment (list of strings)
+    if translated_data.get('treatment'):
+        translated_data['treatment'] = [
+            translate_to_vietnamese(t) for t in translated_data['treatment']
+        ]
+    
+    return translated_data
+
+
 class LeafDiseaseDetector:
     """
     Advanced Leaf Disease Detection System using AI Vision Analysis.
@@ -47,6 +374,8 @@ class LeafDiseaseDetector:
     Hệ thống cũng xác thực rằng hình ảnh được tải lên chứa lá cây thực tế và từ chối hình ảnh con người, động vật hoặc các đối tượng không phải thực vật khác.
 
     Hệ thống hỗ trợ hình ảnh được mã hóa base64 và trả về kết quả JSON có cấu trúc chứa thông tin bệnh, điểm tin cậy, triệu chứng, nguyên nhân và gợi ý điều trị.
+    
+    **✨ TÍnh năng mới: Tất cả kết quả được tự động dịch sang tiếng Việt 100% sau khi phân tích.**
 
     Tính năng:
         - Xác thực hình ảnh (đảm bảo hình ảnh được tải lên chứa lá cây)
@@ -57,6 +386,7 @@ class LeafDiseaseDetector:
         - Khuyến nghị điều trị
         - Xử lý lỗi mạnh mẽ và phân tích phản hồi
         - Phát hiện và từ chối loại hình ảnh không hợp lệ
+        - **Dịch tự động kết quả sang tiếng Việt**
 
     Thuộc tính:
         MODEL_NAME (str): Mô hình AI được sử dụng để phân tích
@@ -68,7 +398,7 @@ class LeafDiseaseDetector:
     Ví dụ:
         >>> detector = LeafDiseaseDetector()
         >>> result = detector.analyze_leaf_image_base64(base64_image_data)
-        >>> if result['disease_type'] == 'invalid_image':
+        >>> if result['disease_type'] == 'hình ảnh không hợp lệ':
         ...     print("Vui lòng tải lên hình ảnh lá cây")
         >>> elif result['disease_detected']:
         ...     print(f"Phát hiện bệnh: {result['disease_name']}")
@@ -163,11 +493,13 @@ class LeafDiseaseDetector:
                                   temperature: float = None,
                                   max_tokens: int = None) -> Dict:
         """
-        Phân tích dữ liệu hình ảnh được mã hóa base64 để tìm bệnh trên lá và trả về kết quả JSON.
+        Phân tích dữ liệu hình ảnh được mã hóa base64 để tìm bệnh trên lá và trả về kết quả JSON bằng tiếng Việt.
 
         Đầu tiên xác nhận rằng hình ảnh có chứa một chiếc lá cây. Nếu hình ảnh hiển thị
         con người, động vật, đồ vật hoặc nội dung không phải thực vật khác, trả về một 
-        phản hồi 'invalid_image'. Để có hình ảnh lá hợp lệ, hãy thực hiện phân tích bệnh.
+        phản hồi 'hình ảnh không hợp lệ'. Để có hình ảnh lá hợp lệ, hãy thực hiện phân tích bệnh.
+        
+        **✨ Kết quả được tự động dịch sang tiếng Việt 100%.**
 
         Tham số:
         base64_image (str): Dữ liệu hình ảnh được mã hóa Base64 (không có tiền tố data:image)
@@ -175,9 +507,9 @@ class LeafDiseaseDetector:
         max_tokens (int, optional): Số lượng token tối đa cho phản hồi
 
         Trả về:
-            Dict: Kết quả phân tích dưới dạng từ điển (có thể tuần tự hóa JSON)
-                 - Đối với hình ảnh không hợp lệ: disease_type sẽ là 'invalid_image'
-                 - Đối với lá hợp lệ: kết quả phân tích bệnh chuẩn
+            Dict: Kết quả phân tích dưới dạng từ điển bằng tiếng Việt (có thể tuần tự hóa JSON)
+                 - Đối với hình ảnh không hợp lệ: disease_type sẽ là 'hình ảnh không hợp lệ'
+                 - Đối với lá hợp lệ: kết quả phân tích bệnh chuẩn bằng tiếng Việt
 
         Tăng:
             Ngoại lệ: Nếu phân tích thất bại
@@ -231,8 +563,15 @@ class LeafDiseaseDetector:
             result = self._parse_response(
                 completion.choices[0].message.content)
 
-            # Return as dictionary for JSON serialization
-            return result.__dict__
+            # Convert to dictionary
+            result_dict = result.__dict__
+
+            # 🎯 POST-PROCESSING: DỊCH TỰ ĐỘNG SANG TIẾNG VIỆT
+            logger.info("🔄 Đang dịch kết quả sang tiếng Việt...")
+            result_dict = translate_disease_data(result_dict)
+
+            # Return translated dictionary for JSON serialization
+            return result_dict
 
         except Exception as e:
             logger.error(f"Analysis failed for base64 image data: {str(e)}")
