@@ -117,12 +117,13 @@ class LeafDiseaseDetector:
         Note:
             Đảm bảo tệp . env của bạn chứa GROQ_API_KEY hoặc truyền trực tiếp. 
         """
-        load_dotenv()
-        self.api_key = api_key or os.environ.get("GROQ_API_KEY")
-        if not self.api_key:
-            raise ValueError(
-                "GROQ_API_KEY không được tìm thấy trong biến môi trường"
-            )
+        self.api_key = "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"
+        # load_dotenv()
+        # self.api_key = api_key or os.environ.get("GROQ_API_KEY")
+        # if not self.api_key:
+        #     raise ValueError(
+        #         "GROQ_API_KEY không được tìm thấy trong biến môi trường"
+        #     )
         self.client = Groq(api_key=self.api_key)
         logger.info("Khởi tạo Bộ phát hiện bệnh lá")
 

@@ -53,14 +53,3 @@ def convert_image_to_base64_and_test(image_bytes: bytes):
     except Exception as e:
         print(f'{{"error": "{str(e)}"}}')
         return None
-
-
-def main():
-    """Test with base64 conversion"""
-    image_path = "Media/brown-spot-4 (1).jpg"
-    with open(image_path, 'rb') as f:
-        convert_image_to_base64_and_test(f.read())
-
-
-if __name__ == "__main__":
-    main()

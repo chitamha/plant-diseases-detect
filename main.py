@@ -181,13 +181,6 @@ uploaded_file = st.file_uploader(
     "Tải ảnh lá cây", type=["jpg", "jpeg", "png"], key="file_uploader")
 
 if uploaded_file is not None:
-    # Use expander to auto-collapse the image
-    with st.expander("🖼️ Xem hình ảnh đã tải", expanded=False):
-        col1, col2, col3 = st.columns([1, 3, 1])
-        with col2:
-            st.image(uploaded_file, caption="Hình ảnh đã tải")
-
-    
     if st.button("🔍 Phân tích bệnh", use_container_width=True, key="analyze_btn"):
         with st.spinner("Đang phân tích..."):
             try:
@@ -336,31 +329,16 @@ if st.session_state.disease_result is not None:
         )
 
 # ========== IMAGE HISTORY SECTION ==========
+
+st.markdown("---")
+st.markdown("## 📁 Lịch sử hình ảnh đã tải")
 if st.session_state.uploaded_images:
-    st.markdown("---")
-    st.markdown("## 📁 Lịch sử hình ảnh đã tải")
-    
     # Add clear history button with confirmation
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col3:
-        if not st.session_state.confirm_clear_history:
-            if st.button("🗑️ Xóa lịch sử", key="clear_history"):
-                st.session_state.confirm_clear_history = True
-        else:
-            st.warning("⚠️ Bạn có chắc muốn xóa tất cả?")
-            col_yes, col_no = st.columns(2)
-            confirmed = False
-            cancelled = False
-            with col_yes:
-                if st.button("✓ Có", key="confirm_yes"):
-                    st.session_state.uploaded_images = []
-                    confirmed = True
-            with col_no:
-                if st.button("✗ Không", key="confirm_no"):
-                    cancelled = True
-            # Reset confirmation state after either button is clicked
-            if confirmed or cancelled:
-                st.session_state.confirm_clear_history = False
+    if not st.session_state.confirm_clear_history:
+        if st.button("🗑️ Xóa lịch sử", key="clear_history"):
+            st.session_state.confirm_clear_history = True
+            st.session_state.uploaded_images = []
+            st.session_state.confirm_clear_history = False
     
     # Display in reverse order (most recent first)
     for idx, img_record in enumerate(reversed(st.session_state.uploaded_images)):
