@@ -201,7 +201,7 @@ if uploaded_file is not None:
                     st.session_state.chatbot = PlantDiseaseChatbot()
                 st.session_state.chatbot.set_disease_context(result)
                 
-                # Close chatbot dialog if it was open
+                # Ensure chatbot dialog is closed
                 st.session_state.show_chat_dialog = False
                 
             except Exception as e: 
@@ -363,8 +363,7 @@ def show_chatbot():
             error_msg = f"Xin lỗi, đã có lỗi: {str(e)}"
             st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
         
-        # Keep dialog open by setting flag
-        st.session_state.show_chat_dialog = True
+        # Rerun to show new messages (dialog stays open automatically)
         st.rerun()
 
 # Show dialog if flag is set
