@@ -123,6 +123,8 @@ TRANSLATION_DICT = {
     "fuzzy growth": "tăng trưởng mờ",
     "cottony growth": "tăng trưởng như bông",
     "sticky residue": "cặn dính",
+    "spots have a tar-like appearance": "đốm có hình dạng giống hắc ín",
+    "tar-like appearance": "hình dạng giống hắc ín",
     "leaf drop": "rụng lá",
     "leaf distortion": "biến dạng lá",
     "leaf deformity": "dị dạng lá",
@@ -241,6 +243,25 @@ TRANSLATION_DICT = {
     "please upload a plant leaf image for disease analysis": "vui lòng tải lên hình ảnh lá cây để phân tích bệnh",
     "upload a plant leaf image": "tải lên hình ảnh lá cây",
     "for disease analysis": "để phân tích bệnh",
+    
+    # Common connecting words and phrases (only full word matches)
+    " and ": " và ",
+    " or ": " hoặc ",
+    " of ": " của ",
+    " on ": " trên ",
+    " in ": " trong ",
+    " at ": " tại ",
+    " by ": " bởi ",
+    " with ": " với ",
+    " from ": " từ ",
+    " for ": " cho ",
+    " to ": " để ",
+    " have a ": " có ",
+    " have ": " có ",
+    " has ": " có ",
+    " is ": " là ",
+    " are ": " là ",
+    "leaf surface": "bề mặt lá",
 }
 
 
