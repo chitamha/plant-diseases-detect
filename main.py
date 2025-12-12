@@ -1,5 +1,6 @@
 import streamlit as st
 import base64
+from PIL import Image
 from core import LeafDiseaseDetector
 from chatbot import PlantDiseaseChatbot
 
@@ -177,11 +178,10 @@ uploaded_file = st.file_uploader(
 if uploaded_file is not None:
     # Use expander to auto-collapse the image
     with st.expander("🖼️ Xem hình ảnh đã tải", expanded=False):
-        col1, col2, col3 = st.columns([1, 3, 1])
-        with col2:
-            st.image(uploaded_file, caption="Hình ảnh đã tải")
-
-    
+        img = Image.open(uploaded_file)
+        img = img.resize((150, 150))   # (width, height)
+        st.image(img)
+  
     if st.button("🔍 Phân tích bệnh", use_container_width=True, key="analyze_btn"):
         with st.spinner("Đang phân tích..."):
             try:
