@@ -51,21 +51,21 @@ class DiseaseAnalysisResult:
 
 class LeafDiseaseDetector: 
     """
-    Advanced Leaf Disease Detection System using AI Vision Analysis.
+    Advanced Plant Disease Detection System using AI Vision Analysis.
 
-    Lớp này cung cấp khả năng phát hiện bệnh trên lá toàn diện bằng cách sử
+    Lớp này cung cấp khả năng phát hiện bệnh trên cây toàn diện bằng cách sử
     dụng API Groq với các mô hình Llama Vision.  Nó có thể phân tích hình ảnh
-    lá để xác định bệnh, đánh giá mức độ nghiêm trọng và đưa ra các khuyến
-    nghị điều trị.  Hệ thống cũng xác thực rằng hình ảnh được tải lên chứa lá
-    cây thực tế và từ chối hình ảnh con người, động vật hoặc các đối tượng
-    không phù hợp.
+    lá, rễ, và thân cây để xác định bệnh, đánh giá mức độ nghiêm trọng và đưa 
+    ra các khuyến nghị điều trị.  Hệ thống cũng xác thực rằng hình ảnh được tải 
+    lên chứa phần cây thực tế và từ chối hình ảnh con người, động vật hoặc các 
+    đối tượng không phù hợp.
 
     Hệ thống hỗ trợ hình ảnh được mã hóa base64 và trả về kết quả JSON có cấu
     trúc chứa thông tin bệnh, điểm tin cậy, triệu chứng, nguyên nhân và gợi ý
     điều trị. 
 
     Tính năng:
-        - Xác thực hình ảnh (đảm bảo hình ảnh được tải lên chứa lá cây)
+        - Xác thực hình ảnh (đảm bảo hình ảnh được tải lên chứa lá, rễ, hoặc thân cây)
         - Phát hiện nhiều loại bệnh (nấm, vi khuẩn, virus, sâu bệnh,
           thiếu dinh dưỡng)
         - Đánh giá mức độ nghiêm trọng (nhẹ, trung bình, nặng)
@@ -87,11 +87,11 @@ class LeafDiseaseDetector:
         >>> detector = LeafDiseaseDetector()
         >>> result = detector.analyze_leaf_image_base64(base64_image_data)
         >>> if result['disease_type'] == 'invalid_image':
-        ...     print("Vui lòng tải lên hình ảnh lá cây")
+        ...     print("Vui lòng tải lên hình ảnh phần cây (lá, rễ, thân)")
         >>> elif result['disease_detected']:
         ...     print(f"Phát hiện bệnh: {result['disease_name']}")
         >>> else:
-        ...     print("Phát hiện lá khỏe mạnh")
+        ...     print("Phát hiện cây khỏe mạnh")
     """
 
     MODEL_NAME = "meta-llama/llama-4-scout-17b-16e-instruct"
@@ -143,16 +143,18 @@ class LeafDiseaseDetector:
             Lời nhắc đảm bảo định dạng đầu ra nhất quán trên tất cả các phân tích
             và bao gồm tất cả các lĩnh vực cần thiết để đánh giá bệnh toàn diện.
         """
-        return """BẠN LÀ CHUYÊN GIA BỆNH HỌC THỰC VẬT với kiến thức chuyên sâu về bệnh lá cây.  Phân tích hình ảnh lá cây và trả về kết quả ở định dạng JSON BẰNG TIẾNG VIỆT.
+        return """BẠN LÀ CHUYÊN GIA BỆNH HỌC THỰC VẬT với kiến thức chuyên sâu về bệnh cây trồng.  Phân tích hình ảnh các bộ phận cây (lá, rễ, thân) và trả về kết quả ở định dạng JSON BẰNG TIẾNG VIỆT.
 
     ═══════════════════════════════════════════════════════════════
     BƯỚC 1: XÁC THỰC HÌNH ẢNH
     ═══════════════════════════════════════════════════════════════
 
-    QUAN TRỌNG: Trước tiên hãy xác định xem hình ảnh này có chứa lá cây/thực vật hay không. 
+    QUAN TRỌNG: Trước tiên hãy xác định xem hình ảnh này có chứa bộ phận cây/thực vật hay không. 
 
     HÌNH ẢNH HỢP LỆ: 
     ✓ Lá cây (đơn lá hoặc lá kép)
+    ✓ Rễ cây (rễ chính, rễ phụ, rễ củ)
+    ✓ Thân cây (thân gỗ, thân thảo, cành, nhánh)
     ✓ Cành cây có lá
     ✓ Cây trồng (rau, hoa, cây ăn quả, cây công nghiệp)
     ✓ Thực vật có triệu chứng bệnh hoặc khỏe mạnh
@@ -168,7 +170,7 @@ class LeafDiseaseDetector:
     Nếu hình ảnh KHÔNG HỢP LỆ → Trả về định dạng "invalid_image". 
 
     ═══════════════════════════════════════════════════════════════
-    BƯỚC 2: PHÂN TÍCH CHI TIẾT (Nếu là hình ảnh lá hợp lệ)
+    BƯỚC 2: PHÂN TÍCH CHI TIẾT (Nếu là hình ảnh bộ phận cây hợp lệ)
     ═══════════════════════════════════════════════════════════════
 
     Hãy quan sát KỸ LƯỠNG và xác định: 
@@ -194,17 +196,23 @@ class LeafDiseaseDetector:
     • "none":  Lá khỏe mạnh hoặc hình ảnh không hợp lệ
 
     4. TRIỆU CHỨNG (symptoms):
-    • MÔ TẢ CHI TIẾT những gì BẠN NHÌN THẤY trên lá:
+    • MÔ TẢ CHI TIẾT những gì BẠN NHÌN THẤY trên bộ phận cây (lá, rễ, thân):
         - Màu sắc: vàng, nâu, đen, trắng, đỏ... 
-        - Hình dạng bất thường: đốm, vệt, viền, vòng tròn... 
-        - Kết cấu: lồi, lõm, khô, ướt, bột, nhầy... 
-        - Vị trí: mép lá, đầu lá, giữa lá, gân lá, mặt trên/dưới... 
+        - Hình dạng bất thường: đốm, vệt, viền, vòng tròn, nứt, thối... 
+        - Kết cấu: lồi, lõm, khô, ướt, bột, nhầy, mục nát... 
+        - Vị trí: 
+            * Trên lá: mép lá, đầu lá, giữa lá, gân lá, mặt trên/dưới
+            * Trên rễ: rễ chính, rễ phụ, đầu rễ, vỏ rễ
+            * Trên thân: vỏ thân, lõi, mặt cắt, mắt chồi
         - Kích thước: nhỏ li ti, lớn, lan rộng... 
     • CÀNG CHI TIẾT CÀNG TỐT (ít nhất 3-5 triệu chứng cụ thể)
     • Ví dụ triệu chứng TỐT:
-        ✓ "Đốm nâu hình tròn đường kính 3-5mm, viền vàng rõ ràng"
+        ✓ "Đốm nâu hình tròn đường kính 3-5mm, viền vàng rõ ràng trên lá"
         ✓ "Lớp bột trắng phủ đều trên mặt trên lá, dày nhất ở lá non"
         ✓ "Lá vàng từ mép vào trong, phần vàng khô giòn và cong lên"
+        ✓ "Rễ có màu nâu đen, mềm nhũn, dễ bong vỏ, mùi hôi thối"
+        ✓ "Thân cây xuất hiện vết nứt dọc, tiết dịch màu nâu sẫm"
+        ✓ "Vỏ thân bong tróc, lộ lõi màu nâu, có vệt đen lan rộng"
 
     5. NGUYÊN NHÂN (possible_causes):
     • Liệt kê TẤT CẢ nguyên nhân có thể dựa trên triệu chứng: 
@@ -474,19 +482,19 @@ class LeafDiseaseDetector:
     ĐỊNH DẠNG TRẢ VỀ
     ═══════════════════════════════════════════════════════════════
 
-    Đối với hình ảnh KHÔNG PHẢI LÁ:
+    Đối với hình ảnh KHÔNG PHẢI BỘ PHẬN CÂY:
     {
         "disease_detected": false,
         "disease_name": null,
         "disease_type": "invalid_image",
         "severity": "none",
         "confidence": confidence,
-        "symptoms": ["Hình ảnh này không chứa lá cây hoặc thực vật"],
-        "possible_causes": ["Loại hình ảnh được tải lên không hợp lệ - không phải lá cây"],
-        "treatment": ["Vui lòng tải lên hình ảnh lá cây để phân tích bệnh"]
+        "symptoms": ["Hình ảnh này không chứa bộ phận cây hoặc thực vật"],
+        "possible_causes": ["Loại hình ảnh được tải lên không hợp lệ - không phải lá, rễ, hoặc thân cây"],
+        "treatment": ["Vui lòng tải lên hình ảnh bộ phận cây (lá, rễ, thân) để phân tích bệnh"]
     }
 
-    Đối với LÁ KHỎE MẠNH:
+    Đối với CÂY KHỎE MẠNH:
     {
         "disease_detected": false,
         "disease_name":  null,
@@ -495,9 +503,9 @@ class LeafDiseaseDetector:
         "confidence": confidence,
         "symptoms": [
             "Không phát hiện triệu chứng bệnh",
-            "Lá có màu xanh tươi đều",
+            "Màu sắc tự nhiên, đều đặn (lá xanh tươi / rễ trắng ngà / thân khỏe mạnh)",
             "Không có đốm, vết hoặc biến dạng",
-            "Bề mặt lá nhẵn, không có lớp phủ bất thường"
+            "Bề mặt nhẵn, không có lớp phủ bất thường hoặc vết nứt"
         ],
         "possible_causes": [
             "Cây đang phát triển tốt",
@@ -511,7 +519,7 @@ class LeafDiseaseDetector:
         ]
     }
 
-    Đối với LÁ BỊ BỆNH:
+    Đối với CÂY BỊ BỆNH:
     {
         "disease_detected": true,
         "disease_name": "Tên bệnh cụ thể bằng tiếng Việt",
@@ -565,12 +573,12 @@ class LeafDiseaseDetector:
         max_tokens: int = None
     ) -> Dict: 
         """
-        Phân tích dữ liệu hình ảnh được mã hóa base64 để tìm bệnh trên lá. 
+        Phân tích dữ liệu hình ảnh được mã hóa base64 để tìm bệnh trên cây. 
 
-        Đầu tiên xác nhận rằng hình ảnh có chứa một chiếc lá cây.  Nếu hình
-        ảnh hiển thị con người, động vật, đồ vật hoặc nội dung không phải
-        thực vật khác, trả về một phản hồi 'invalid_image'.  Để có hình ảnh lá
-        hợp lệ, hãy thực hiện phân tích bệnh. 
+        Đầu tiên xác nhận rằng hình ảnh có chứa một bộ phận cây (lá, rễ, thân).  
+        Nếu hình ảnh hiển thị con người, động vật, đồ vật hoặc nội dung không 
+        phải thực vật khác, trả về một phản hồi 'invalid_image'.  Để có hình ảnh 
+        bộ phận cây hợp lệ, hãy thực hiện phân tích bệnh. 
 
         Args:
             base64_image (str): Dữ liệu hình ảnh được mã hóa Base64 (không có
@@ -582,7 +590,7 @@ class LeafDiseaseDetector:
             Dict: Kết quả phân tích dưới dạng từ điển (có thể tuần tự hóa JSON)
                  - Đối với hình ảnh không hợp lệ: disease_type sẽ là
                    'invalid_image'
-                 - Đối với lá hợp lệ: kết quả phân tích bệnh chuẩn
+                 - Đối với bộ phận cây hợp lệ: kết quả phân tích bệnh chuẩn
                  - TẤT CẢ nội dung sẽ bằng tiếng Việt
 
         Raises:

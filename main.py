@@ -9,7 +9,7 @@ DISEASE_TYPE_INVALID = "invalid_image"
 
 # Set Streamlit theme to light and wide mode
 st.set_page_config(
-    page_title="Phát Hiện Bệnh Trên Lá",
+    page_title="Phát Hiện Bệnh Trên Cây",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -37,7 +37,7 @@ with st.sidebar:
         st.image("black-tree-logo.png", width=100)
     st.title("Developing an AI Application")
     st.info("""
-    Hệ thống đánh giá, phân tích và phát hiện bệnh dựa trên dữ liệu lá nhờ vào Computer Vision và Machine Learning.
+    Hệ thống đánh giá, phân tích và phát hiện bệnh dựa trên hình ảnh lá, rễ, và thân cây nhờ vào Computer Vision và Machine Learning.
     Đồng thời cung cấp các thông tin về triệu chứng, nguyên nhân và biện pháp xử lí.
     """)
     
@@ -170,15 +170,15 @@ st.markdown(
 
 st.markdown("""
     <div style='text-align: center; margin-top: 0.1em;'>
-        <h1 style='color: #1565c0; margin-bottom: 0; font-size: 3em'>ỨNG DỤNG AI PHÁT HIỆN BỆNH TRÊN LÁ</h1>
-        <p style='color: #616161; font-size: 1.15em;'>Tải ảnh lá để phát hiện bệnh và nhận lời khuyên</p>
+        <h1 style='color: #1565c0; margin-bottom: 0; font-size: 3em'>ỨNG DỤNG AI PHÁT HIỆN BỆNH TRÊN CÂY</h1>
+        <p style='color: #616161; font-size: 1.15em;'>Tải ảnh lá, rễ, hoặc thân cây để phát hiện bệnh và nhận lời khuyên</p>
     </div>
 """, unsafe_allow_html=True)
 
 # ========== DISEASE DETECTION SECTION ==========
 st.markdown("## 🔍 Phân tích")
 uploaded_file = st.file_uploader(
-    "Tải ảnh lá cây", type=["jpg", "jpeg", "png"], key="file_uploader")
+    "Tải ảnh bộ phận cây (lá, rễ, thân)", type=["jpg", "jpeg", "png"], key="file_uploader")
 
 if uploaded_file is not None:
     if st.button("🔍 Phân tích bệnh", use_container_width=True, key="analyze_btn"):
@@ -253,7 +253,7 @@ if st.session_state.disease_result is not None:
             <div class="disease-title">⚠️ Ảnh không hợp lệ</div>
 
             <div style="color:#ff5722; font-size:1.05em; margin-bottom: 1em;">
-                Vui lòng tải lại hình ảnh của lá cây.
+                Vui lòng tải lại hình ảnh của bộ phận cây (lá, rễ, thân).
             </div>
 
             {symptoms_html}
@@ -394,7 +394,7 @@ if st.session_state.uploaded_images:
                         <div class="disease-title">⚠️ Ảnh không hợp lệ</div>
 
                         <div style="color:#ff5722; font-size:1.05em; margin-bottom: 1em;">
-                            Vui lòng tải lại hình ảnh của lá cây.
+                            Vui lòng tải lại hình ảnh của bộ phận cây (lá, rễ, thân).
                         </div>
 
                         {symptoms_html}
@@ -487,7 +487,7 @@ def show_chatbot():
         if st.session_state.disease_result:
             st.success("✅ Chatbot đã có thông tin phân tích bệnh")
         else:
-            st.info("💡 Hãy phân tích ảnh lá cây trước để chatbot có thể tư vấn chi tiết!")
+            st.info("💡 Hãy phân tích ảnh bộ phận cây (lá, rễ, thân) trước để chatbot có thể tư vấn chi tiết!")
     with col2:
         if st.button("🗑️", key="clear_chat_dlg", help="Xóa lịch sử chat"):
             st.session_state.chat_messages = []
