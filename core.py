@@ -247,15 +247,15 @@ class LeafDiseaseDetector:
     [28-30 điểm] - CHẤT LƯỢNG XUẤT SẮC:
     ✓ Ảnh cận cảnh rất rõ nét, có thể zoom in thấy chi tiết
     ✓ Ánh sáng tự nhiên đầy đủ, không quá sáng/tối
-    ✓ Lá chiếm >70% khung hình
+    ✓ Bộ phận cây (lá/rễ/thân) chiếm >70% khung hình
     ✓ Focus chuẩn, không bị mờ/nhòe
-    ✓ Nhiều góc độ hoặc nhiều lá mẫu
+    ✓ Nhiều góc độ hoặc nhiều mẫu
     ✓ Độ phân giải cao (>1080p)
 
     [22-27 điểm] - CHẤT LƯỢNG TỐT:
     ✓ Ảnh khá rõ, có thể nhìn thấy triệu chứng
     ✓ Ánh sáng ổn, một số vùng hơi tối/sáng
-    ✓ Lá chiếm 50-70% khung hình
+    ✓ Bộ phận cây (lá/rễ/thân) chiếm 50-70% khung hình
     ✓ Focus tốt ở phần quan trọng
     ✓ 1-2 góc độ
     ✓ Độ phân giải trung bình (720p-1080p)
@@ -263,7 +263,7 @@ class LeafDiseaseDetector:
     [14-21 điểm] - CHẤT LƯỢNG TRUNG BÌNH:
     ✓ Ảnh bình thường, nhìn thấy được triệu chứng chính
     ✓ Ánh sáng chấp nhận được
-    ✓ Lá chiếm 30-50% khung hình
+    ✓ Bộ phận cây (lá/rễ/thân) chiếm 30-50% khung hình
     ✓ Focus ổn nhưng không sắc nét
     ✓ 1 góc độ duy nhất
     ✓ Độ phân giải trung bình (480p-720p)
@@ -271,14 +271,14 @@ class LeafDiseaseDetector:
     [8-13 điểm] - CHẤT LƯỢNG YẾU: 
     ✓ Ảnh hơi mờ, khó nhìn chi tiết
     ✓ Ánh sáng kém (quá tối hoặc quá sáng)
-    ✓ Lá chiếm <30% khung hình hoặc quá xa
+    ✓ Bộ phận cây (lá/rễ/thân) chiếm <30% khung hình hoặc quá xa
     ✓ Focus không chuẩn, mờ nhiều chỗ
     ✓ Độ phân giải thấp (<480p)
 
     [1-7 điểm] - CHẤT LƯỢNG RẤT KÉM:
     ✓ Ảnh rất mờ, khó nhận diện
     ✓ Ánh sáng rất kém (tối đen hoặc cháy sáng)
-    ✓ Lá rất nhỏ trong khung hình
+    ✓ Bộ phận cây (lá/rễ/thân) rất nhỏ trong khung hình
     ✓ Bị rung/nhòe nặng
     ✓ Độ phân giải rất thấp
 
@@ -295,7 +295,7 @@ class LeafDiseaseDetector:
     ✓ Hình dạng, màu sắc, vị trí hoàn toàn điển hình
     ✓ Không có triệu chứng nhiễu/lẫn lộn
 
-    VÍ DỤ:  Bệnh phấn trắng - lớp bột trắng dày đặc, rõ ràng
+    VÍ DỤ:  Bệnh phấn trắng trên lá - lớp bột trắng dày đặc, rõ ràng
 
     [28-35 điểm] - TRIỆU CHỨNG RÕ RÀNG: 
     ✓ Triệu chứng khá đặc trưng, có thể nhận diện
@@ -305,6 +305,7 @@ class LeafDiseaseDetector:
     ✓ Ít triệu chứng nhiễu
 
     VÍ DỤ: Bệnh đốm lá - đốm nâu rõ, có viền vàng
+           Bệnh thối rễ - rễ nâu đen, mềm nhũn
 
     [18-27 điểm] - TRIỆU CHỨNG KHÁ RÕ:
     ✓ Triệu chứng nhận biết được nhưng cần suy luận
@@ -314,6 +315,7 @@ class LeafDiseaseDetector:
     ✓ Có một số triệu chứng nhiễu
 
     VÍ DỤ: Lá vàng - có thể thiếu N hoặc úng nước
+           Thân có vết nâu - có thể nấm hoặc sâu đục
 
     [10-17 điểm] - TRIỆU CHỨNG MƠ HỒ:
     ✓ Triệu chứng không rõ ràng, khó nhận diện
@@ -323,6 +325,7 @@ class LeafDiseaseDetector:
     ✓ Nhiều triệu chứng nhiễu gây nhầm lẫn
 
     VÍ DỤ: Lá hơi xỉn màu - chưa rõ nguyên nhân
+           Rễ có màu hơi sẫm - chưa rõ bệnh hay tự nhiên
 
     [1-9 điểm] - TRIỆU CHỨNG RẤT MƠ HỒ: 
     ✓ Hầu như không thấy triệu chứng rõ ràng
@@ -331,7 +334,7 @@ class LeafDiseaseDetector:
     ✓ Hoàn toàn không điển hình
     ✓ Quá nhiều yếu tố gây nhiễu
 
-    VÍ DỤ: Lá có màu hơi khác thường, không rõ lý do
+    VÍ DỤ: Bộ phận cây có màu hơi khác thường, không rõ lý do
 
     ───────────────────────────────────────────────────────────────
     YẾU TỐ 3: ĐỘ CHẮC CHẮN TRONG CHẨN ĐOÁN (0-30 điểm)
@@ -345,7 +348,8 @@ class LeafDiseaseDetector:
     ✓ Triệu chứng khớp hoàn toàn với 1 bệnh cụ thể
     ✓ Có thể ghi rõ tên khoa học tác nhân gây bệnh
 
-    VÍ DỤ: Lớp bột trắng dày → CHẮC CHẮN là bệnh phấn trắng
+    VÍ DỤ: Lớp bột trắng dày trên lá → CHẮC CHẮN là bệnh phấn trắng
+           Rễ đen mềm nhũn có mùi hôi → CHẮC CHẮN là bệnh thối rễ
 
     [21-26 điểm] - RẤT CHẮC CHẮN:
     ✓ 1 bệnh có khả năng rất cao (>80%)
@@ -353,7 +357,8 @@ class LeafDiseaseDetector:
     ✓ Triệu chứng thiên về 1 bệnh rõ rệt
     ✓ Có thể loại trừ hầu hết các bệnh khác
 
-    VÍ DỤ: Đốm nâu viền vàng → Rất có thể là đốm lá nấm
+    VÍ DỤ: Đốm nâu viền vàng trên lá → Rất có thể là đốm lá nấm
+           Thân nứt tiết dịch nâu → Rất có thể là bệnh loét thân
 
     [15-20 điểm] - KHẢNG CHẮC CHẮN: 
     ✓ 1-2 bệnh có khả năng cao ngang nhau (60-80%)
@@ -361,7 +366,8 @@ class LeafDiseaseDetector:
     ✓ Triệu chứng phù hợp với nhóm bệnh
     ✓ Có thể loại trừ một số bệnh
 
-    VÍ DỤ: Đốm nâu → Có thể nấm hoặc vi khuẩn
+    VÍ DỤ: Đốm nâu trên lá → Có thể nấm hoặc vi khuẩn
+           Rễ màu nâu → Có thể thối rễ hoặc thiếu oxy
 
     [8-14 điểm] - KHÔNG CHẮC CHẮN:
     ✓ 2-3 bệnh có khả năng tương đương (40-60%)
@@ -370,6 +376,7 @@ class LeafDiseaseDetector:
     ✓ Cần thêm nhiều thông tin
 
     VÍ DỤ:  Lá vàng → Thiếu N, úng, bệnh rễ, hoặc già tự nhiên? 
+            Thân có vết đen → Nấm, vi khuẩn, sâu đục, hoặc va đập?
 
     [1-7 điểm] - RẤT KHÔNG CHẮC CHẮN:
     ✓ Nhiều hơn 3 bệnh có thể (<40% mỗi bệnh)
@@ -377,7 +384,7 @@ class LeafDiseaseDetector:
     ✓ Không thể loại trừ bất kỳ khả năng nào
     ✓ Gần như đoán mò
 
-    VÍ DỤ: Lá có vẻ không bình thường nhưng không rõ lý do
+    VÍ DỤ: Bộ phận cây có vẻ không bình thường nhưng không rõ lý do
 
     ───────────────────────────────────────────────────────────────
     THANG ĐÁNH GIÁ TỔNG HỢP (0-100%)
@@ -389,31 +396,36 @@ class LeafDiseaseDetector:
     • Ảnh xuất sắc (28-30) + Triệu chứng điển hình (36-40) + 1 bệnh duy nhất (27-30)
     • Tổng:  91-100 điểm
     • Có thể khẳng định chắc chắn bệnh gì
-    • VÍ DỤ:  Ảnh rõ bệnh phấn trắng điển hình → 95%
+    • VÍ DỤ:  Ảnh rõ bệnh phấn trắng trên lá → 95%
+             Ảnh rõ bệnh thối rễ điển hình → 94%
 
     [75-89%] - KHẢNG CHẮC CHẮN:
     • Ảnh tốt (22-27) + Triệu chứng rõ (28-35) + 1-2 bệnh (21-26)
     • Tổng: 75-90 điểm
     • Rất có khả năng đúng, tin cậy cao
     • VÍ DỤ: Ảnh khá rõ đốm lá nấm → 82%
+            Ảnh khá rõ thân bị loét → 80%
 
     [60-74%] - KHẢ NĂNG CAO:
     • Ảnh trung bình (14-21) + Triệu chứng khá rõ (18-27) + 2-3 bệnh (15-20)
     • Tổng: 60-74 điểm
     • Có thể tin tưởng nhưng nên xác nhận thêm
     • VÍ DỤ: Ảnh OK, đốm lá không rõ nấm hay khuẩn → 68%
+            Ảnh OK, rễ nâu chưa rõ nguyên nhân → 65%
 
     [40-59%] - KHÔNG CHẮC CHẮN:
     • Ảnh yếu (8-13) + Triệu chứng mơ hồ (10-17) + Nhiều khả năng (8-14)
     • Tổng: 40-59 điểm
     • Chỉ là dự đoán, cần thêm thông tin
     • VÍ DỤ: Ảnh mờ, lá vàng không rõ nguyên nhân → 48%
+            Ảnh mờ, thân có vết bất thường → 45%
 
     [20-39%] - RẤT KHÔNG CHẮC CHẮN:
     • Ảnh kém (1-7) + Triệu chứng rất mơ hồ (1-9) + Quá nhiều khả năng (1-7)
     • Tổng:  20-39 điểm
     • Gần như không thể chẩn đoán
     • VÍ DỤ: Ảnh rất mờ, lá có vẻ lạ → 28%
+            Ảnh rất mờ, rễ không rõ ràng → 25%
 
     [<20%] - GẦN NHƯ ĐOÁN:
     • Tổng: <20 điểm
@@ -424,15 +436,15 @@ class LeafDiseaseDetector:
     TRƯỜNG HỢP ĐẶC BIỆT
     ───────────────────────────────────────────────────────────────
 
-    • Hình ảnh KHÔNG phải lá (invalid_image):
+    • Hình ảnh KHÔNG phải bộ phận cây (invalid_image):
     → Confidence: 90-98%
-    → Lý do: Dễ nhận biết đây không phải lá cây
+    → Lý do: Dễ nhận biết đây không phải lá, rễ, hay thân cây
 
-    • Lá KHỎE MẠNH (không có bệnh):
+    • Bộ phận cây KHỎE MẠNH (không có bệnh):
     → Confidence: 85-95%
     → Lý do: Dễ xác nhận không có triệu chứng bệnh
 
-    • Lá có dấu hiệu BẤT THƯỜNG nhưng ảnh quá KÉM:
+    • Bộ phận cây có dấu hiệu BẤT THƯỜNG nhưng ảnh quá KÉM:
     → Confidence: <40%
     → NÊN GỢI Ý:  "Vui lòng chụp ảnh rõ hơn để phân tích chính xác"
 
@@ -440,7 +452,7 @@ class LeafDiseaseDetector:
     VÍ DỤ TÍNH CONFIDENCE CỤ THỂ
     ═══════════════════════════════════════════════════════════════
 
-    VÍ DỤ 1: Bệnh phấn trắng rõ ràng
+    VÍ DỤ 1: Bệnh phấn trắng rõ ràng trên lá
     • Chất lượng ảnh:  Ảnh cận cảnh rõ nét, ánh sáng tốt → 28 điểm
     • Triệu chứng: Lớp bột trắng dày, điển hình → 38 điểm
     • Chẩn đoán: Chỉ có bệnh phấn trắng phù hợp → 28 điểm
@@ -467,6 +479,20 @@ class LeafDiseaseDetector:
     • Chẩn đoán:  Chắc chắn khỏe mạnh → 28 điểm
     • TỔNG: 26 + 38 + 28 = 92%
     → Confidence: 92%
+
+    VÍ DỤ 5: Bệnh thối rễ điển hình
+    • Chất lượng ảnh: Ảnh cận cảnh rõ, thấy rõ rễ → 27 điểm
+    • Triệu chứng: Rễ nâu đen, mềm nhũn, bong vỏ, mùi hôi → 39 điểm
+    • Chẩn đoán: Chắc chắn là bệnh thối rễ → 28 điểm
+    • TỔNG: 27 + 39 + 28 = 94%
+    → Confidence: 94%
+
+    VÍ DỤ 6: Thân cây có vết loét
+    • Chất lượng ảnh: Ảnh khá rõ, thấy được vết thương → 23 điểm
+    • Triệu chứng: Vỏ nứt, tiết dịch nâu, có thể nấm hoặc vi khuẩn → 28 điểm
+    • Chẩn đoán: 2 khả năng (nấm 60%, vi khuẩn 40%) → 17 điểm
+    • TỔNG: 23 + 28 + 17 = 68%
+    → Confidence: 68%
 
     ═══════════════════════════════════════════════════════════════
     YÊU CẦU BẮT BUỘC KHI ĐÁNH GIÁ CONFIDENCE
