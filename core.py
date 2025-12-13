@@ -249,7 +249,7 @@ class LeafDiseaseDetector:
     ✓ Ánh sáng tự nhiên đầy đủ, không quá sáng/tối
     ✓ Bộ phận cây (lá/rễ/thân) chiếm >70% khung hình
     ✓ Focus chuẩn, không bị mờ/nhòe
-    ✓ Nhiều góc độ hoặc nhiều mẫu
+    ✓ Nhiều góc độ hoặc nhiều mẫu bộ phận cây
     ✓ Độ phân giải cao (>1080p)
 
     [22-27 điểm] - CHẤT LƯỢNG TỐT:
@@ -529,7 +529,7 @@ class LeafDiseaseDetector:
         "confidence": confidence,
         "symptoms": [
             "Không phát hiện triệu chứng bệnh",
-            "Màu sắc tự nhiên, đều đặn (lá xanh tươi / rễ trắng ngà / thân khỏe mạnh)",
+            "Màu sắc tự nhiên, đều đặn (lá xanh tươi / rễ trắng ngà / thân nâu tự nhiên, vỏ nguyên vẹn)",
             "Không có đốm, vết hoặc biến dạng",
             "Bề mặt nhẵn, không có lớp phủ bất thường hoặc vết nứt"
         ],
