@@ -23,13 +23,13 @@ class DiseaseAnalysisResult:
     """
     Lớp dữ liệu để lưu trữ kết quả phân tích bệnh toàn diện. 
 
-    Lớp này gói gọn tất cả thông tin trả về từ bệnh lá phân tích, bao gồm
+    Lớp này gói gọn tất cả thông tin trả về từ phân tích bệnh cây, bao gồm
     tình trạng phát hiện, xác định bệnh, mức độ nghiêm trọng, đánh giá và
     đề xuất điều trị.
 
     Thuộc tính:
         disease_detected (bool): Liệu bệnh có được phát hiện trong hình ảnh
-                                 chiếc lá hay không
+                                 bộ phận cây hay không
         disease_name (Optional[str]): Tên của bệnh được xác định, None nếu
                                       khỏe mạnh
         disease_type (str): Loại bệnh (nấm, vi khuẩn, virus, sâu bệnh,...)
