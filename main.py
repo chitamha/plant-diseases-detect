@@ -551,7 +551,7 @@ st.html("""
     /* Hide default streamlit button styling for the chatbot FAB */
     div[data-testid="stVerticalBlock"] > div:last-child button[kind="primary"] {
         position: fixed !important;
-        bottom: 50px !important;
+        bottom: 60px !important;
         right: 20px !important;
         z-index: 9999 !important;
         width: 50px !important;
