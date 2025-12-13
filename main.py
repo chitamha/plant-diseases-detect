@@ -349,20 +349,125 @@ if st.session_state.uploaded_images:
                 # Decode base64 image for display
                 image_bytes = base64.b64decode(img_record['image_base64'])
                 st.image(image_bytes, caption=img_record['filename'], use_container_width=True)
+                
+                # Add chatbot button for this image's analysis
+                if st.button("💬 Hỏi Chatbot về ảnh này", key=f"chat_btn_{idx}", type="secondary", use_container_width=True):
+                    # Initialize chatbot if not exists
+                    if st.session_state.chatbot is None:
+                        st.session_state.chatbot = PlantDiseaseChatbot()
+                    # Set the disease context to this image's result
+                    st.session_state.chatbot.set_disease_context(img_record['result'])
+                    # Open chatbot dialog
+                    st.session_state.show_chat_dialog = True
+                    st.rerun()
             
             with col2:
                 result = img_record['result']
                 
-                # Display summary based on result type
+                # Display detailed results based on result type
                 if result.get("disease_type") == DISEASE_TYPE_INVALID:
-                    st.warning("⚠️ Ảnh không hợp lệ")
+                    symptoms = result.get("symptoms", []) or []
+                    treatments = result.get("treatment", []) or []
+
+                    symptoms_html = ""
+                    if symptoms:
+                        symptoms_html = f"""
+                        <div class="section-title">Vấn đề</div>
+                        <ul class="symptom-list">
+                        {''.join(f"<li>{s}</li>" for s in symptoms)}
+                        </ul>
+                        """
+
+                    treatments_html = ""
+                    if treatments:
+                        treatments_html = f"""
+                        <div class="section-title">Lời khuyên</div>
+                        <ul class="treatment-list">
+                        {''.join(f"<li>{t}</li>" for t in treatments)}
+                        </ul>
+                        """
+
+                    st.markdown(
+                        f"""
+                        <div class="result-card invalid" style="margin-top: 0;">
+
+                        <div class="disease-title">⚠️ Ảnh không hợp lệ</div>
+
+                        <div style="color:#ff5722; font-size:1.05em; margin-bottom: 1em;">
+                            Vui lòng tải lại hình ảnh của lá cây.
+                        </div>
+
+                        {symptoms_html}
+                        {treatments_html}
+
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
                 elif result.get("disease_detected"):
-                    st.error(f"🦠 **Bệnh:** {result.get('disease_name', 'N/A')}")
-                    st.info(f"📊 **Độ tin cậy:** {result.get('confidence', 'N/A')}%")
-                    st.info(f"⚠️ **Mức độ:** {result.get('severity', 'N/A')}")
+                    st.markdown(
+                        f"""
+                        <div class="result-card" style="margin-top: 0;">
+
+                        <div class="disease-title">
+                            🦠 {result.get('disease_name', 'N/A')}
+                        </div>
+
+                        <div style="margin-bottom: 0.8em;">
+                            <div class="info-badge">Loại: {result.get('disease_type', 'N/A')}</div>
+                            <div class="info-badge">Mức độ: {result.get('severity', 'N/A')}</div>
+                            <div class="info-badge">Độ tin cậy: {result.get('confidence', 'N/A')}%</div>
+                        </div>
+
+                        <div class="section-title">Triệu chứng</div>
+                        <ul class="symptom-list">
+                            {''.join(f"<li>{s}</li>" for s in result.get("symptoms", []))}
+                        </ul>
+
+                        <div class="section-title">Nguyên nhân</div>
+                        <ul class="cause-list">
+                            {''.join(f"<li>{c}</li>" for c in result.get("possible_causes", []))}
+                        </ul>
+
+                        <div class="section-title">Biện pháp xử lý</div>
+                        <ul class="treatment-list">
+                            {''.join(f"<li>{t}</li>" for t in result.get("treatment", []))}
+                        </ul>
+
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
                 else:
-                    st.success("✅ Cây khỏe mạnh")
-                    st.info(f"📊 **Độ tin cậy:** {result.get('confidence', 'N/A')}%")
+                    # Healthy leaf case
+                    st.markdown(
+                        f"""
+                        <div class="result-card" style="margin-top: 0;">
+
+                        <div class="disease-title">✅ Cây khoẻ mạnh</div>
+
+                        <div style="
+                            color: #4caf50;
+                            font-size: 1.1em;
+                            margin-bottom: 1em;
+                        ">
+                            Không phát hiện bệnh trên lá cây
+                        </div>
+
+                        <div class="info-badge">
+                            🌱 Tình trạng: {result.get('disease_type', 'healthy')}
+                        </div>
+
+                        <div class="info-badge">
+                            🔬 Đáng tin cậy: {result.get('confidence', 'N/A')}%
+                        </div>
+
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
 # ========== FLOATING CHATBOT WIDGET ==========
 
