@@ -1,9 +1,9 @@
 """
-Chatbot Module for Leaf Disease Detection System
+Chatbot Module for Plant Disease Detection System
 ================================================
 
 This module provides a conversational AI chatbot that can answer questions
-about plant diseases, provide advice, and assist users with the leaf disease
+about plant diseases, provide advice, and assist users with the plant disease
 detection system. All responses are in Vietnamese.
 
 Features:
@@ -277,11 +277,11 @@ VÍ DỤ CÂU HỎI NGƯỜI DÙNG CÓ THỂ HỎI:
         disease analysis result from image detection.
         
         Args:
-            disease_analysis (Dict): Disease analysis result from LeafDiseaseDetector
+            disease_analysis (Dict): Disease analysis result from PlantDiseaseDetector
         
         Example:
             >>> chatbot = PlantDiseaseChatbot()
-            >>> result = detector.analyze_leaf_image_base64(image)
+            >>> result = detector.analyze_plant_image_base64(image)
             >>> chatbot.set_disease_context(result)
             >>> response = chatbot.chat("Giải thích về bệnh này?")
         """

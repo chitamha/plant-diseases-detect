@@ -1,7 +1,7 @@
 import streamlit as st
 import base64
 from datetime import datetime
-from core import LeafDiseaseDetector
+from core import PlantDiseaseDetector
 from chatbot import PlantDiseaseChatbot
 
 # Constants
@@ -185,14 +185,14 @@ if uploaded_file is not None:
         with st.spinner("Đang phân tích..."):
             try:
                 # ✅ GỌI TRỰC TIẾP (KHÔNG QUA API)
-                detector = LeafDiseaseDetector()
+                detector = PlantDiseaseDetector()
                 
                 # Convert image to base64
                 image_bytes = uploaded_file.getvalue()
                 base64_image = base64.b64encode(image_bytes).decode('utf-8')
                 
                 # Phân tích
-                result = detector.analyze_leaf_image_base64(base64_image)
+                result = detector.analyze_plant_image_base64(base64_image)
                 
                 # Save result to session state for chatbot
                 st.session_state.disease_result = result
@@ -300,7 +300,7 @@ if st.session_state.disease_result is not None:
         )
 
     else:
-        # Healthy leaf case
+        # Healthy plant case
         st.markdown(
             f"""
             <div class="result-card">
@@ -441,7 +441,7 @@ if st.session_state.uploaded_images:
                     )
 
                 else:
-                    # Healthy leaf case
+                    # Healthy plant case
                     st.markdown(
                         f"""
                         <div class="result-card" style="margin-top: 0;">

@@ -49,7 +49,7 @@ class DiseaseAnalysisResult:
     treatment: List[str]
 
 
-class LeafDiseaseDetector: 
+class PlantDiseaseDetector: 
     """
     Advanced Plant Disease Detection System using AI Vision Analysis.
 
@@ -84,8 +84,8 @@ class LeafDiseaseDetector:
         client (Groq): Thể hiện của trình khách API Groq
 
     Ví dụ:
-        >>> detector = LeafDiseaseDetector()
-        >>> result = detector.analyze_leaf_image_base64(base64_image_data)
+        >>> detector = PlantDiseaseDetector()
+        >>> result = detector.analyze_plant_image_base64(base64_image_data)
         >>> if result['disease_type'] == 'invalid_image':
         ...     print("Vui lòng tải lên hình ảnh phần cây (lá, rễ, thân)")
         >>> elif result['disease_detected']:
@@ -592,7 +592,7 @@ class LeafDiseaseDetector:
 
     CHỈ TRẢ VỀ JSON, KHÔNG CÓ GHI CHÚ HOẶC GIẢI THÍCH THÊM."""
 
-    def analyze_leaf_image_base64(
+    def analyze_plant_image_base64(
         self,
         base64_image:  str,
         temperature: float = None,
@@ -768,9 +768,9 @@ def main():
     """Main execution function for testing."""
     try:
         # Example usage
-        detector = LeafDiseaseDetector()
-        print("✅ Leaf Disease Detector khởi tạo thành công!")
-        print("📌 Sử dụng phương thức analyze_leaf_image_base64() "
+        detector = PlantDiseaseDetector()
+        print("✅ Plant Disease Detector khởi tạo thành công!")
+        print("📌 Sử dụng phương thức analyze_plant_image_base64() "
               "với dữ liệu hình ảnh base64.")
 
     except Exception as e:

@@ -1,5 +1,5 @@
 """
-Base64 Image Test for Leaf Disease Detection
+Base64 Image Test for Plant Disease Detection
 ===========================================
 
 This script demonstrates how to send base64 image data directly to the detector.
@@ -12,9 +12,9 @@ import base64
 from pathlib import Path
 
 try:
-    from core import LeafDiseaseDetector
+    from core import PlantDiseaseDetector
 except ImportError as e:
-    print(f'{{"error": "Could not import LeafDiseaseDetector: {str(e)}"}}')
+    print(f'{{"error": "Could not import PlantDiseaseDetector: {str(e)}"}}')
     sys.exit(1)
 
 
@@ -26,8 +26,8 @@ def test_with_base64_data(base64_image_string: str):
         base64_image_string (str): Base64 encoded image data
     """
     try:
-        detector = LeafDiseaseDetector()
-        result = detector.analyze_leaf_image_base64(base64_image_string)
+        detector = PlantDiseaseDetector()
+        result = detector.analyze_plant_image_base64(base64_image_string)
         print(json.dumps(result, indent=2))
         return result
     except Exception as e:
