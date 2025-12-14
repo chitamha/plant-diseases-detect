@@ -566,6 +566,6 @@ st.html("""
 """)
 
 # Floating chatbot button
-if st.button("💬", key="open_chatbot", help="Mở Chatbot Tư Vấn", type="primary"):
+if st.button("💬", key="open_chatbot", help="", type="primary"):
     st.session_state.show_chat_dialog = True
     st.rerun()
