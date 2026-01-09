@@ -15,6 +15,7 @@ Features:
 """
 
 import os
+import streamlit
 import json
 import logging
 from typing import List, Dict, Optional
@@ -96,7 +97,7 @@ class PlantDiseaseChatbot:
         Note:
             Ensure your .env file contains GROQ_API_KEY or pass it directly.
         """
-        self.api_key = "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"
+        self.api_key = streamlit.secrets["GROQ_API_KEY"]
         # load_dotenv()
         # self.api_key = api_key or os.environ.get("GROQ_API_KEY")
         # if not self.api_key:
