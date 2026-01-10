@@ -5,58 +5,11 @@
 
 ## 👥 Thành Viên Nhóm
 
-Dự án được thực hiện bởi nhóm **TinyTech-67311** - Khóa K25 - Môn Cơ Sở Lập Trình: 
-
-<table>
-<tr>
-<td align="center" width="25%">
-<img src="https://github.com/identicons/1.png" width="100px;"/><br/>
-<b>Huỳnh Văn Phú</b><br/>
-<sub>MSSV: 25122036</sub><br/>
-<br/>
-<i>🎮 Game Logic & Core System</i><br/>
-<i>🎯 Gameplay Programming</i>
-</td>
-
-<td align="center" width="25%">
-<img src="https://github.com/identicons/2.png" width="100px;"/><br/>
-<b>Hà Chí Tâm</b><br/>
-<sub>MSSV:  25122039</sub><br/>
-<br/>
-<i>🤖 AI & Pathfinding Algorithm</i><br/>
-<i>🧠 Enemy Behavior System</i>
-</td>
-
-<td align="center" width="25%">
-<img src="https://github.com/identicons/3.png" width="100px;"/><br/>
-<b>Thịnh</b><br/>
-<sub>MSSV: 25122040</sub><br/>
-<br/>
-<i>🎨 UI/UX Design</i><br/>
-<i>📋 Menu System</i>
-</td>
-
-<td align="center" width="25%">
-<img src="https://github.com/identicons/4.png" width="100px;"/><br/>
-<b>Ngô Phạm Hồng Thức</b><br/>
-<sub>MSSV: 25122044</sub><br/>
-<br/>
-<i>🗺️ Level Design</i><br/>
-<i>🎬 Assets Management</i>
-</td>
-</tr>
-</table>
-
-### 📊 Phân Công Công Việc
-
-| Thành viên | Công việc chính | Đóng góp |
-|------------|----------------|----------|
-| **Huỳnh Văn Phú** | Core Game Logic, Player Controller, Game State Manager | 25% |
-| **Hà Chí Tâm** | AI Pathfinding, Enemy System, Collision Detection | 25% |
-| **Thịnh** | UI/UX, Menu System, Settings, Sound Manager | 25% |
-| **Ngô Phạm Hồng Thức** | Level Design, Assets, Map Parser, Testing | 25% |
-
----
+Dự án được thực hiện bởi nhóm **Nhóm 10** - Khóa K25 - Môn Cơ Sở Lập Trình: 
+- Ngô Phạm Hồng Thức - 25122044
+- Hà Chí Tâm - 25122039
+- Huỳnh Văn Phú - 25122036
+- Đặng Lê Hưng Thịnh - 25122040
 
 ## 📖 Giới Thiệu (Overview)
 **Mummy Maze** là dự án tái hiện tựa game giải đố kinh điển của PopCap.  Trong game, người chơi vào vai nhà thám hiểm **Explorer** bị kẹt trong kim tự tháp bí ẩn và phải tìm đường thoát ra ngoài trong khi tránh những xác ướp (Enemy/Mummy) đang rình rập.
