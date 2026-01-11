@@ -83,18 +83,44 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
 
 ## 🚀 Cách Chạy Game
 
+> Trước khi khởi động Game, chúng ta hãy cài đặt Git Bash để clone repository về máy.
+
+### Cài đặt Git Bash
+
+**Bước 1: Tải bộ cài đặt**
+```bash
+1. Truy cập trang chủ chính thức của Git: https://git-scm.com/downloads
+2. Nhấn vào nút "Download for Windows".
+3. Chọn phiên bản "64-bit Git for Windows Setup".
+```
+**Bước 2: Chạy file cài đặt**
+```bash
+1. Mở file ".exe" vừa tải. 
+2. Có thể bấm Next liên tục để cài đặt theo mặc định.
+```
+**Bước 3: Kiểm tra cài đặt**
+```bash
+1. Nhấn chuột phải vào màn hình Desktop hoặc một thư mục bất kỳ.
+2. Kiểm tra xem có dòng "Open Git Bash Here" trong menu hay không.
+3. Nếu có, cài đặt hoàn tất. Ngược lại, hãy làm lại Bước 1.
+```
+
+> Sau khi cài đặt xong, chúng ta có 2 phương án để khởi động Game.
+
 ### 📦 Phương Án 1: Chạy File Executable (Khuyến nghị)
 
-1. **Download** toàn bộ repository hoặc clone về máy: 
+1. **Clone repository về máy bằng Git Bash**
    ```bash
+   Khởi động Git Bash và gõ câu lệnh sau:
    git clone https://github.com/TinyTech-67311/MummyMaze.git
-   cd MummyMaze
    ```
-
-2. **Double-click** vào file `MummyMaze.exe` để chạy game
-
-> ⚠️ **Lưu ý**: Windows Defender có thể cảnh báo khi chạy file `.exe` từ nguồn không xác định. Chọn **"Run anyway"** để tiếp tục. 
-
+2. **Khởi động Game**
+   ```bash
+   Bước 1: Trên cửa sổ Git Bash đó, hãy vào thư mục Mummy Maze bằng cách gõ câu lệnh sau:
+   cd Mummy Maze
+   Bước 2: Khởi động Game, hãy gõ câu lệnh sau:
+   start MummyMaze.exe
+   ```
 ### 🐍 Phương Án 2: Chạy từ Source Code Python
 
 **Yêu cầu:**
@@ -103,19 +129,21 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
 
 **Các bước thực hiện:**
 
-1. **Clone repository**
+1. **Clone repository về máy bằng Git Bash**
    ```bash
+   Khởi động Git Bash và gõ những câu lệnh sau:
    git clone https://github.com/TinyTech-67311/MummyMaze.git
    cd MummyMaze/source
    ```
 
 2. **Tạo virtual environment** (khuyến nghị)
    ```bash
+   Khởi tạo môi trường ảo:
    python -m venv venv
-   
+
+   Kích hoạt môi trường ảo:
    # Windows
    . venv/Scripts/activate
-   
    # macOS/Linux
    source venv/bin/activate
    ```
@@ -131,4 +159,3 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
    ```
 
 ---
-
