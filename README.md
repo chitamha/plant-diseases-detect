@@ -1,6 +1,4 @@
 # MUMMY MAZE - ĐỒ ÁN MÔN CƠ SỞ LẬP TRÌNH
-
-> **Đồ án môn học: Cơ Sở Lập Trình**
 > *Một tựa game giải đố chiến thuật được xây dựng với Python và Pygame.*
 
 ## 👥 Thành Viên Nhóm
@@ -20,7 +18,7 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
 
 | Công nghệ | Phiên bản | Mục đích |
 |-----------|-----------|----------|
-| **Python** | 3.11+ | Ngôn ngữ lập trình chính |
+| **Python** | 3.12+ | Ngôn ngữ lập trình chính |
 | **Pygame** | 2.5.2 | Thư viện đồ họa và xử lý game |
 | **Công cụ** | - | Công cụ hỗ trợ code game |
 | **JSON** | Built-in | Lưu trữ dữ liệu user và progress |
@@ -33,7 +31,7 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
 ### 🎮 Gameplay Features
 
 #### 1. **Hệ Thống Di Chuyển**
-- Di chuyển theo 4 hướng: Lên, Xuống, Trái, Phải
+- Di chuyển theo 4 hướng: Lên, Xuống, Trái, Phải bằng cách Click chuột hoặc Nhấn phím
 - Mỗi bước đi của Player kích hoạt lượt đi của tất cả Enemy
 - Hệ thống collision detection chính xác
 
@@ -43,15 +41,15 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
 - Thuật toán Di chuyển ngăn người chơi di chuyển đến lối thoát (BFS)
 
 #### 3. **Hệ Thống Game Objects**
-| Đối tượng | Biểu tượng | Chức năng |
-|-----------|------------|-----------|
-| **Explorer** | 🕵️‍♂️ | Nhân vật chính do người chơi điều khiển |
-| **Enemy/Mummy** | 🧟 | Xác ướp tự động truy đuổi người chơi |
-| **Key** | 🔑 | Chìa khóa để mở Gate |
-| **Gate** | 🚪 | Cửa cần Key để mở |
-| **Trap** | ⚠️ | Bẫy gây thua nếu va phải |
-| **Stair/Exit** | 🪜 | Điểm thoát hiểm để chiến thắng |
-| **Wall** | 🧱 | Tường chắn đường |
+| Đối tượng | Chức năng |
+|-----------|------------|
+| **Explorer** | Nhân vật chính do người chơi điều khiển |
+| **Enemy/Mummy** | Xác ướp tự động truy đuổi người chơi |
+| **Key** | Chìa khóa để mở/đóng Gate |
+| **Gate** | Cửa cần Key để mở/đóng |
+| **Trap** | Bẫy gây thua nếu va phải |
+| **Stair/Exit** | Điểm thoát hiểm để chiến thắng |
+| **Wall** | Tường chắn đường |
 
 ### 💾 System Features
 
@@ -78,26 +76,16 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
 - Thanh Menu hỗ trợ người chơi: Undo Move, Reset Maze, World Map, Quit Game và Quit to Main
 - Màn hình kết quả với các lựa chọn: Undo Move, Reset Maze, World Map, Quit to Main
 
-#### 9. **Visual & Audio**
-- Sprite đẹp mắt cho tất cả game objects
-- Animation mượt mà cho di chuyển và tương tác
-- Background music và sound effects
-- Hiệu ứng particle khi thắng/thua
-
-#### 10. **Multiple Levels**
+#### 9. **Multiple Levels**
 - Nhiều level với độ khó tăng dần
 - Map được thiết kế thủ công, lưu trong `assets/map/`
 - Mỗi level có bố trí Enemy và Trap khác nhau
 
 ---
 
-## 📂 Cấu Trúc Dự Án
-
 ## 🚀 Cách Chạy Game
 
 ### 📦 Phương Án 1: Chạy File Executable (Khuyến nghị)
-
-**✅ Dễ nhất - Không cần cài đặt Python! **
 
 1. **Download** toàn bộ repository hoặc clone về máy: 
    ```bash
@@ -148,20 +136,3 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
 
 ---
 
-## 🎯 Hướng Dẫn Chơi
-
-### 📜 Luật Chơi
-
-1. **Mục tiêu**: Điều khiển Explorer đến **Stair/Exit** (cầu thang) để hoàn thành level
-
-2. **Di chuyển**: 
-   - Mỗi lần bạn di chuyển 1 ô, tất cả Enemy cũng di chuyển 1 ô
-   - Enemy sẽ tự động đuổi theo bạn theo đường đi ngắn nhất
-
-3. **Thua cuộc khi**:
-   - Va chạm với Enemy
-   - Dẫm phải Trap
-   - Không còn nước đi hợp lệ
-
-4. **Chiến thắng khi**:
-   - Đến được Stair/Exit
