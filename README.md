@@ -93,14 +93,12 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
 
 2. **Double-click** vào file `MummyMaze.exe` để chạy game
 
-3. **Đảm bảo** các thư mục `assets/` và `font/` nằm cùng cấp với file `.exe`
-
 > ⚠️ **Lưu ý**: Windows Defender có thể cảnh báo khi chạy file `.exe` từ nguồn không xác định. Chọn **"Run anyway"** để tiếp tục. 
 
 ### 🐍 Phương Án 2: Chạy từ Source Code Python
 
 **Yêu cầu:**
-- Python 3.10 hoặc 3.11
+- Python 3.12 hoặc 3.13
 - pip (Python package manager)
 
 **Các bước thực hiện:**
@@ -108,7 +106,7 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
 1. **Clone repository**
    ```bash
    git clone https://github.com/TinyTech-67311/MummyMaze.git
-   cd MummyMaze
+   cd MummyMaze/source
    ```
 
 2. **Tạo virtual environment** (khuyến nghị)
@@ -116,7 +114,7 @@ Mỗi bước di chuyển của người chơi sẽ kích hoạt lượt đi c�
    python -m venv venv
    
    # Windows
-   venv\Scripts\activate
+   . venv/Scripts/activate
    
    # macOS/Linux
    source venv/bin/activate
