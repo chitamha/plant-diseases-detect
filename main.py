@@ -40,16 +40,6 @@ with st.sidebar:
     Hệ thống đánh giá, phân tích và phát hiện bệnh dựa trên hình ảnh lá, rễ, và thân cây nhờ vào Computer Vision và Machine Learning.
     Đồng thời cung cấp các thông tin về triệu chứng, nguyên nhân và biện pháp xử lí.
     """)
-    
-    st.markdown("---")
-    st.subheader("👥 Thành viên nhóm")
-    st.write("1. Chí Tâm - 25122039")
-    st.write("2. Hồng Thức - 25122044")
-    st.write("3. Văn Phú - 25122036")
-    
-    st.markdown("---")
-    st.caption("Model: The Llama 4")
-    st.caption("Framework: Groq & Streamlit")
 
 st.markdown("""
     <style>
